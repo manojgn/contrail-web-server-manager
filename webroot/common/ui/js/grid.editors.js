@@ -114,14 +114,6 @@
         };
 
         this.loadValue = function (item) {
-            if(contrail.checkIfFunction(args.column.editEnabler)) {
-                var disableFlag = args.column.editEnabler(item);
-                $select.prop('disabled', !disableFlag);
-                if(!disableFlag) {
-                    $select.prop('checked', false);
-                    return;
-                }
-            }
             defaultValue = !!item[args.column.field];
             if (defaultValue) {
                 $select.prop('checked', true);
@@ -153,25 +145,21 @@
     }
 
     function ContrailDropdownEditor(args) {
-        var $dropdown, $contrailDropdown = null,
+        var $dropdown, $contrailDropdown,
             defaultValue,
             scope = this;
 
         this.init = function () {
-            if(!contrail.checkIfExist($contrailDropdown)) {
-                $dropdown = $("<input type=text class='editor-contrail-dropdown' />");
-                $dropdown.appendTo(args.container);
-                $dropdown.contrailDropdown(args.column.elementConfig);
-                $dropdown.select();
+            $dropdown = $("<input type=text class='editor-contrail-dropdown' />");
+            $dropdown.appendTo(args.container);
+            $dropdown.contrailDropdown(args.column.elementConfig);
+            $dropdown.focus().select();
 
-                $contrailDropdown = $dropdown.data('contrailDropdown');
-            }
+            $contrailDropdown = $dropdown.data('contrailDropdown');
         };
 
         this.destroy = function () {
-            if(contrail.checkIfExist($contrailDropdown)) {
-                $contrailDropdown.destroy();
-            }
+            $contrailDropdown.destroy();
         };
 
         this.focus = function () {

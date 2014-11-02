@@ -670,21 +670,49 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'server-routes-grid',
+                                    elementId: 'server-interfaces-grid',
                                     view: "FormDynamicGridView",
                                     viewConfig: {
                                         path: 'id',
                                         class: "span12",
-                                        modelAttributePath: 'routes',
                                         elementConfig: {
-                                            options: {
-                                                uniqueColumn: 'network'
-                                            },
+                                            options: {},
                                             columns: [
                                                 {
-                                                    id: "network", name: "IP Address/Mask", field: "network", width: 310,
+                                                    id: "name", name: "Name", field: "name", width: 150,
                                                     editor: ContrailGrid.Editors.Text,
                                                     formatter: ContrailGrid.Formatters.Text,
+                                                    elementConfig: {
+                                                        placeholder: 'Interface Name'
+                                                    }
+                                                },
+                                                {
+                                                    id: "type", name: "Type", field: "type", width: 80,
+                                                    defaultValue: 'physical',
+                                                    editor: ContrailGrid.Editors.ContrailDropdown,
+                                                    elementConfig: {
+                                                        width: 'element',
+                                                        placeholder: 'Select Type',
+                                                        dataTextField: "text",
+                                                        dataValueField: "value",
+                                                        data: smwc.INTERFACE_TYPES
+                                                    }
+
+                                                },
+                                                {
+                                                    id: "dhcp", name: "DHCP", field: "dhcp", width: 60,
+                                                    editor: ContrailGrid.Editors.Checkbox, formatter: ContrailGrid.Formatters.Checkbox,
+                                                    formatter: ContrailGrid.Formatters.Checkbox
+                                                },
+                                                {
+                                                    id: "subnet", name: "Subnet", field: "subnet", width: 90,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: function (r, c, v, cd, dc) {
+                                                        return (dc.dhcp) ? ContrailGrid.Formatters.Text(r, c, v, cd, dc) : '';
+                                                    },
+                                                    editEnabler: function (dc) {
+                                                        return (dc.dhcp);
+                                                    },
                                                     validator: function (value) {
                                                         var pattern = new RegExp(smwc.PATTERN_SUBNET_MASK),
                                                             valid = pattern.test(value);
@@ -696,11 +724,11 @@ define([
 
                                                     },
                                                     elementConfig: {
-                                                        placeholder: 'IP Address/Mask'
+                                                        placeholder: 'Subnet'
                                                     }
                                                 },
                                                 {
-                                                    id: "gateway", name: "Gateway", field: "gateway", width: 280,
+                                                    id: "gateway", name: "Gateway", field: "gateway", width: 70,
                                                     editor: ContrailGrid.Editors.Text,
                                                     formatter: ContrailGrid.Formatters.Text,
                                                     validator: function (value) {
@@ -715,6 +743,36 @@ define([
                                                     },
                                                     elementConfig: {
                                                         placeholder: 'Gateway'
+                                                    }
+                                                },
+                                                {
+                                                    id: "members", name: "Members", field: "members", width: 120,
+                                                    editor: ContrailGrid.Editors.ContrailMultiselect,
+                                                    formatter: function (r, c, v, cd, dc) {
+                                                        return (dc.type == 'bond') ? ContrailGrid.Formatters.ContrailMultiselect(r, c, v, cd, dc) : '';
+                                                    },
+                                                    editEnabler: function (dc) {
+                                                          return (dc.type == 'bond');
+                                                    },
+                                                    initSetData: function (args, $contrailMultiselect) {
+                                                        var gridData = args.grid.getData(),
+                                                            interfaceData = [];
+
+                                                        $.each(gridData, function (gridDataKey, gridDataValue) {
+                                                            if (gridDataValue.type == 'physical') {
+                                                                interfaceData.push(gridDataValue.name);
+                                                            }
+                                                        });
+
+                                                        $contrailMultiselect.setData(interfaceData)
+
+                                                    },
+                                                    elementConfig: {
+                                                        placeholder: 'Select Type',
+                                                        width: 'element',
+                                                        dataTextField: "id",
+                                                        dataValueField: "id",
+                                                        data: []
                                                     }
                                                 }
                                             ]
