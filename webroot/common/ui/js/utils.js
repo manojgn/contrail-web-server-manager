@@ -131,7 +131,7 @@ define([
 
         this.disableModalLoading = function (modalId, callback) {
             setTimeout(function () {
-                $('#' + modalId).find('.modal-body').animate({scrollTop: 0})
+                $('#' + modalId).find('.modal-body').animate({scrollTop: 0});
 
                 $('#' + modalId).find('.modal-header h6 .modal-loading-icon').remove();
                 $('#' + modalId).find('.modal-header .icon-remove').removeClass('icon-muted');
