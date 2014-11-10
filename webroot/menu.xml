@@ -12,7 +12,42 @@
             <name>configure</name>
             <label>Configure</label>
             <iconClass>icon-wrench</iconClass>
-            <items></items>
+            <items>
+             <item>
+                 <label>Server Manager</label>
+                 <hash>config_sm</hash>
+                    <resources>
+                        <resource>
+                            <rootDir>/common/ui</rootDir>
+                            <js>sm.app.js</js>
+                            <js>handlebars.helpers.js</js>
+                        </resource>
+                    </resources>                 
+                 <access>
+                     <roles>
+                         <role>member</role>
+                     </roles>
+                     <orchModels>
+                         <model>openstack</model>
+                     </orchModels>
+                 </access>
+                 <iconClass>icon-globe</iconClass>
+                 <items>
+                     <item>
+                         <label>Baremetal</label>
+                         <hash>config_pd_baremetal</hash>
+                         <resources>
+                             <resource>
+                                 <rootDir>/config/physicaldevices/baremetal/ui</rootDir>
+                                 <js>baremetal.main.js</js>
+                                 <view>baremetal.view</view>
+                                 <class>baremetalPageLoader</class>
+                             </resource>
+                         </resources>
+                    </item>
+                 </items>
+              </item>           
+            </items>
         </item>
         <item>
             <label>Setting</label>
