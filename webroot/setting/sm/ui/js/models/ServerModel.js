@@ -340,10 +340,6 @@ define([
                     required: true,
                     msg: smwm.getRequiredMessage('base_image_id')
                 },
-                'gateway': {
-                    required: true,
-                    msg: smwm.getRequiredMessage('gateway')
-                },
                 'network.management_interface': {
                     required: true,
                     msg: smwm.getRequiredMessage('management_interface')
