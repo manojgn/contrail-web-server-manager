@@ -15,11 +15,20 @@ define([
                 model = this.model,
                 elId = this.attributes.elementId,
                 columns = viewConfig.elementConfig.columns,
-                options = viewConfig.options,
-                data = model.model().attributes.interfaces;
+                options = viewConfig.elementConfig.options,
+                data = model.model().attributes[viewConfig.modelAttributePath];
 
             var grid,
-                defaultDataItem = {};
+                defaultDataItem = {},
+                defaultOptions = {
+                    editable: true,
+                    enableAddRow: true,
+                    enableCellNavigation: true,
+                    asyncEditorLoading: false,
+                    autoEdit: false,
+                    autoHeight: true,
+                    rowHeight: 30
+                };
 
             $.each(columns, function (columnKey, columnValue) {
                 defaultDataItem[columnValue.field] = contrail.checkIfExist(columnValue.defaultValue) ? columnValue.defaultValue : null;
@@ -35,6 +44,7 @@ define([
                     return '<i class="row-remove icon-minus grey" data-row=' + r + '></i>'
                 },
                 width: 20,
+                maxWidth: 20,
                 resizable: false,
                 sortable: false
             });
@@ -49,47 +59,60 @@ define([
                     return '<i class="row-add icon-plus grey" data-row=' + r + '></i>'
                 },
                 width: 20,
+                maxWidth: 20,
                 resizable: false,
                 sortable: false
             });
-            options = {
-                editable: true,
-                enableAddRow: true,
-                enableCellNavigation: true,
-                asyncEditorLoading: false,
-                autoEdit: false,
-                autoHeight: true,
-                rowHeight: 30
-            };
+
+            options = $.extend(true, {}, defaultOptions, options);
 
             grid = new Slick.Grid('#' + elId, data, columns, options);
 
             grid.gotoCell(data.length, 0, true);
 
+            $('#' + elId).data('contrailDynamicgrid', {
+                _grid: grid
+            })
+
             grid.onAddNewRow.subscribe(function (e, args) {
-                var item = $.extend(true, {}, defaultDataItem, args.item);
-                item.cgrid = 'cgr_' + data.length;
-                grid.invalidateRow(data.length);
-                data.push(item);
-                grid.updateRowCount();
-                grid.render();
-                grid.gotoCell(data.length, 0, true);
+                var thisGrid = $('#' + elId).data('contrailDynamicgrid')._grid;
+                if(contrail.checkIfExist(args.item[options.uniqueColumn]) && args.item[options.uniqueColumn] != '') {
+                    var item = $.extend(true, {}, defaultDataItem, args.item);
+
+                    item.cgrid = 'cgr_' + data.length;
+                    thisGrid.invalidateRow(data.length);
+                    data.push(item);
+                    thisGrid.updateRowCount();
+                    thisGrid.render();
+                    thisGrid.gotoCell(data.length, 0, true);
+                } else {
+                    thisGrid.invalidateRow(data.length);
+                    thisGrid.render();
+                }
             });
 
             $('#' + elId).addClass('contrail-grid contrail-grid-editable');
 
-            $(document).on('click', 'i.row-add', function() {
-                var rowIndex = $(this).data('row');
-                data.splice((rowIndex + 1), 0, $.extend(true, {}, defaultDataItem));
-                grid.setData(data);
-                grid.gotoCell((rowIndex + 1), 0, true);
-            });
+            $('#' + elId)
+                .off('click', 'i.row-add')
+                .on('click', 'i.row-add', function() {
+                    var rowIndex = $(this).data('row'),
+                        thisGrid = $('#' + elId).data('contrailDynamicgrid')._grid;
 
-            $(document).on('click', 'i.row-remove', function() {
-                var rowIndex = $(this).data('row');
-                data.splice(rowIndex, 1);
-                grid.setData(data);
-            });
+                    data.splice((rowIndex + 1), 0, $.extend(true, {}, defaultDataItem));
+                    thisGrid.setData(data);
+                    thisGrid.gotoCell((rowIndex + 1), 0, true);
+                });
+
+            $('#' + elId)
+                .off('click', 'i.row-remove')
+                .on('click', 'i.row-remove', function() {
+                    var rowIndex = $(this).data('row'),
+                        thisGrid = $('#' + elId).data('contrailDynamicgrid')._grid;
+
+                    data.splice(rowIndex, 1);
+                    thisGrid.setData(data);
+                });
 
         }
     });

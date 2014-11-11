@@ -618,6 +618,181 @@ define([
                 }
             },
             {
+
+                elementId: smwu.formatElementId([prefixId, smwl.TITLE_INTERFACES]),
+                title: smwl.TITLE_INTERFACES,
+                view: "SectionView",
+                viewConfig: {
+                    rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: 'server-interfaces-grid',
+                                    view: "FormDynamicGridView",
+                                    viewConfig: {
+                                        path: 'id',
+                                        class: "span12",
+                                        modelAttributePath: 'interfaces',
+                                        elementConfig: {
+                                            options: {
+                                                uniqueColumn: 'name'
+                                            },
+                                            columns: [
+                                                {
+                                                    id: "name", name: "Name", field: "name", width: 85,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: ContrailGrid.Formatters.Text,
+                                                    elementConfig: {
+                                                        placeholder: 'Name'
+                                                    }
+                                                },
+                                                {
+                                                    id: "mac_address", name: "MAC Address", field: "mac_address", width: 130,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: ContrailGrid.Formatters.Text,
+                                                    validator: function (value) {
+                                                        var pattern = new RegExp(smwc.PATTERN_MAC_ADDRESS),
+                                                            valid = pattern.test(value);
+
+                                                        return {
+                                                            valid: valid,
+                                                            message: (!valid) ? smwm.getInvalidErrorMessage('subnet_mask') : null
+                                                        }
+
+                                                    },
+                                                    elementConfig: {
+                                                        placeholder: 'MAC Address'
+                                                    }
+                                                },
+                                                {
+                                                    id: "type", name: "Type", field: "type", width: 60,
+                                                    defaultValue: 'physical',
+                                                    editor: ContrailGrid.Editors.ContrailDropdown,
+                                                    elementConfig: {
+                                                        width: 'element',
+                                                        placeholder: 'Select Type',
+                                                        dataTextField: "text",
+                                                        dataValueField: "value",
+                                                        data: smwc.INTERFACE_TYPES
+                                                    }
+
+                                                },
+                                                {
+                                                    id: "dhcp",
+                                                    name: "DHCP",
+                                                    field: "dhcp",
+                                                    width: 45,
+                                                    editor: ContrailGrid.Editors.Checkbox,
+                                                    formatter: ContrailGrid.Formatters.Checkbox,
+                                                    formatter: ContrailGrid.Formatters.Checkbox
+                                                },
+                                                {
+                                                    id: "ip_address",
+                                                    name: "IP Address/Mask",
+                                                    field: "ip_address",
+                                                    width: 110,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: function (r, c, v, cd, dc) {
+                                                        return (dc.dhcp) ? '' : ContrailGrid.Formatters.Text(r, c, v, cd, dc);
+                                                    },
+                                                    editEnabler: function (dc) {
+                                                        return (!dc.dhcp);
+                                                    },
+                                                    validator: function (value) {
+                                                        var pattern = new RegExp(smwc.PATTERN_SUBNET_MASK),
+                                                            valid = pattern.test(value);
+
+                                                        return {
+                                                            valid: valid,
+                                                            message: (!valid) ? smwm.getInvalidErrorMessage('subnet_mask') : null
+                                                        }
+
+                                                    },
+                                                    elementConfig: {
+                                                        placeholder: 'IP Address/Mask'
+                                                    }
+                                                },
+                                                {
+                                                    id: "default_gateway", name: "Gateway", field: "default_gateway", width: 70,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: function (r, c, v, cd, dc) {
+                                                        return (dc.dhcp) ? '' : ContrailGrid.Formatters.Text(r, c, v, cd, dc);
+                                                    },
+                                                    editEnabler: function (dc) {
+                                                        return (!dc.dhcp);
+                                                    },
+                                                    validator: function (value) {
+                                                        var pattern = new RegExp(smwc.PATTERN_IP_ADDRESS),
+                                                            valid = pattern.test(value);
+
+                                                        return {
+                                                            valid: valid,
+                                                            message: (!valid) ? smwm.getInvalidErrorMessage('subnet_mask') : null
+                                                        }
+
+                                                    },
+                                                    elementConfig: {
+                                                        placeholder: 'Gateway'
+                                                    }
+                                                },
+                                                {
+                                                    id: "members",
+                                                    name: "Members",
+                                                    field: "member_interfaces",
+                                                    width: 90,
+                                                    editor: ContrailGrid.Editors.ContrailMultiselect,
+                                                    formatter: function (r, c, v, cd, dc) {
+                                                        return (dc.type == 'bond') ? ContrailGrid.Formatters.ContrailMultiselect(r, c, v, cd, dc) : '';
+                                                    },
+                                                    editEnabler: function (dc) {
+                                                        return (dc.type == 'bond');
+                                                    },
+                                                    initSetData: function (args, $contrailMultiselect) {
+                                                        var gridData = args.grid.getData(),
+                                                            interfaceData = [];
+
+                                                        $.each(gridData, function (gridDataKey, gridDataValue) {
+                                                            if (gridDataValue.type == 'physical' && contrail.checkIfExist(gridDataValue.name) && gridDataValue.name != '' && !gridDataValue.dhcp) {
+                                                                interfaceData.push(gridDataValue.name);
+                                                            }
+                                                        });
+
+                                                        $contrailMultiselect.setData(interfaceData)
+
+                                                    },
+                                                    elementConfig: {
+                                                        placeholder: 'Select Members',
+                                                        width: 'element',
+                                                        dataTextField: "id",
+                                                        dataValueField: "id",
+                                                        data: []
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'management_interface',
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        path: 'management_interface', dataBindValue: 'management_interface', class: "span6",
+                                        elementConfig: {
+                                            placeholder: smwl.TITLE_SELECT_MANAGEMENT_INTERFACE, dataTextField: "id", dataValueField: "id",
+                                            dataSource: { data: []}
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            {
                 elementId: smwu.formatElementId([prefixId, smwl.TITLE_PROVISIONING]),
                 title: smwl.TITLE_PROVISIONING,
                 view: "SectionView",
@@ -653,14 +828,13 @@ define([
                                 {
                                     elementId: 'control_data_interface',
                                     view: "FormDropdownView",
-                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.TITLE_SELECT_CONTROL_DATA_INTERFACE, dataTextField: "id", dataValueField: "id", data: []}}
+                                    viewConfig: {path: 'base_image_id', dataBindValue: 'base_image_id', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", dataSource: { type: 'remote', url: smwu.getObjectDetailUrl(smwc.IMAGE_PREFIX_ID, 'filterInImages')}}}
                                 }
                             ]
                         }
                     ]
                 }
-            }
-            /*
+            },
             {
                 elementId: smwu.formatElementId([prefixId, smwl.TITLE_ROUTE_CONFIGRATIONS]),
                 title: smwl.TITLE_ROUTE_CONFIGRATIONS,
@@ -670,49 +844,21 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'server-interfaces-grid',
+                                    elementId: 'server-routes-grid',
                                     view: "FormDynamicGridView",
                                     viewConfig: {
                                         path: 'id',
                                         class: "span12",
+                                        modelAttributePath: 'routes',
                                         elementConfig: {
-                                            options: {},
+                                            options: {
+                                                uniqueColumn: 'network'
+                                            },
                                             columns: [
                                                 {
-                                                    id: "name", name: "Name", field: "name", width: 150,
+                                                    id: "network", name: "IP Address/Mask", field: "network", width: 310,
                                                     editor: ContrailGrid.Editors.Text,
                                                     formatter: ContrailGrid.Formatters.Text,
-                                                    elementConfig: {
-                                                        placeholder: 'Interface Name'
-                                                    }
-                                                },
-                                                {
-                                                    id: "type", name: "Type", field: "type", width: 80,
-                                                    defaultValue: 'physical',
-                                                    editor: ContrailGrid.Editors.ContrailDropdown,
-                                                    elementConfig: {
-                                                        width: 'element',
-                                                        placeholder: 'Select Type',
-                                                        dataTextField: "text",
-                                                        dataValueField: "value",
-                                                        data: smwc.INTERFACE_TYPES
-                                                    }
-
-                                                },
-                                                {
-                                                    id: "dhcp", name: "DHCP", field: "dhcp", width: 60,
-                                                    editor: ContrailGrid.Editors.Checkbox, formatter: ContrailGrid.Formatters.Checkbox,
-                                                    formatter: ContrailGrid.Formatters.Checkbox
-                                                },
-                                                {
-                                                    id: "subnet", name: "Subnet", field: "subnet", width: 90,
-                                                    editor: ContrailGrid.Editors.Text,
-                                                    formatter: function (r, c, v, cd, dc) {
-                                                        return (dc.dhcp) ? ContrailGrid.Formatters.Text(r, c, v, cd, dc) : '';
-                                                    },
-                                                    editEnabler: function (dc) {
-                                                        return (dc.dhcp);
-                                                    },
                                                     validator: function (value) {
                                                         var pattern = new RegExp(smwc.PATTERN_SUBNET_MASK),
                                                             valid = pattern.test(value);
@@ -724,11 +870,11 @@ define([
 
                                                     },
                                                     elementConfig: {
-                                                        placeholder: 'Subnet'
+                                                        placeholder: 'IP Address/Mask'
                                                     }
                                                 },
                                                 {
-                                                    id: "gateway", name: "Gateway", field: "gateway", width: 70,
+                                                    id: "gateway", name: "Gateway", field: "gateway", width: 280,
                                                     editor: ContrailGrid.Editors.Text,
                                                     formatter: ContrailGrid.Formatters.Text,
                                                     validator: function (value) {
@@ -743,36 +889,6 @@ define([
                                                     },
                                                     elementConfig: {
                                                         placeholder: 'Gateway'
-                                                    }
-                                                },
-                                                {
-                                                    id: "members", name: "Members", field: "members", width: 120,
-                                                    editor: ContrailGrid.Editors.ContrailMultiselect,
-                                                    formatter: function (r, c, v, cd, dc) {
-                                                        return (dc.type == 'bond') ? ContrailGrid.Formatters.ContrailMultiselect(r, c, v, cd, dc) : '';
-                                                    },
-                                                    editEnabler: function (dc) {
-                                                          return (dc.type == 'bond');
-                                                    },
-                                                    initSetData: function (args, $contrailMultiselect) {
-                                                        var gridData = args.grid.getData(),
-                                                            interfaceData = [];
-
-                                                        $.each(gridData, function (gridDataKey, gridDataValue) {
-                                                            if (gridDataValue.type == 'physical') {
-                                                                interfaceData.push(gridDataValue.name);
-                                                            }
-                                                        });
-
-                                                        $contrailMultiselect.setData(interfaceData)
-
-                                                    },
-                                                    elementConfig: {
-                                                        placeholder: 'Select Type',
-                                                        width: 'element',
-                                                        dataTextField: "id",
-                                                        dataValueField: "id",
-                                                        data: []
                                                     }
                                                 }
                                             ]

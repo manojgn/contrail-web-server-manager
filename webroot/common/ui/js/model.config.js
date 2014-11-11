@@ -70,14 +70,8 @@ define([
                 'parameters': {},
                 'tag': {},
                 'roles': ['compute'],
-                'contrail': {
-                    'control_data_interface': null
-                },
-                'network': {
-                    'management_interface': null,
-                    'provisioning': "kickstart",
-                    'interfaces': []
-                }
+                'interfaces': [],
+                'routes': []
             };
         };
 

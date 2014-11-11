@@ -145,21 +145,25 @@
     }
 
     function ContrailDropdownEditor(args) {
-        var $dropdown, $contrailDropdown,
+        var $dropdown, $contrailDropdown = null,
             defaultValue,
             scope = this;
 
         this.init = function () {
-            $dropdown = $("<input type=text class='editor-contrail-dropdown' />");
-            $dropdown.appendTo(args.container);
-            $dropdown.contrailDropdown(args.column.elementConfig);
-            $dropdown.focus().select();
+            if(!contrail.checkIfExist($contrailDropdown)) {
+                $dropdown = $("<input type=text class='editor-contrail-dropdown' />");
+                $dropdown.appendTo(args.container);
+                $dropdown.contrailDropdown(args.column.elementConfig);
+                $dropdown.select();
 
-            $contrailDropdown = $dropdown.data('contrailDropdown');
+                $contrailDropdown = $dropdown.data('contrailDropdown');
+            }
         };
 
         this.destroy = function () {
-            $contrailDropdown.destroy();
+            if(contrail.checkIfExist($contrailDropdown)) {
+                $contrailDropdown.destroy();
+            }
         };
 
         this.focus = function () {
