@@ -16,7 +16,15 @@ define([
                 elId = this.attributes.elementId,
                 columns = viewConfig.elementConfig.columns,
                 options = viewConfig.elementConfig.options,
-                data = model.getValueByPath(viewConfig.modelAttributePath);
+                data = model.getValueByPath(viewConfig.modelAttributePath),
+                path = viewConfig[smwc.KEY_PATH],
+                lockEditingByDefault = this.attributes.lockEditingByDefault;
+
+            if (!(contrail.checkIfExist(lockEditingByDefault) && lockEditingByDefault)) {
+                lockEditingByDefault = false;
+            }
+
+            this.model.initLockAttr(path, lockEditingByDefault);
 
             var grid,
                 defaultDataItem = {},

@@ -586,7 +586,7 @@ define([
                                     elementId: 'server-interfaces-grid',
                                     view: "FormDynamicGridView",
                                     viewConfig: {
-                                        path: 'id',
+                                        path: 'network.interfaces',
                                         class: "span12",
                                         modelAttributePath: 'network.interfaces',
                                         elementConfig: {
