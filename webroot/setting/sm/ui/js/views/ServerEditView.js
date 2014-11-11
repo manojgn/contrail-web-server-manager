@@ -567,51 +567,7 @@ define([
                         },
                         {
                             columns: [
-                                {
-                                    elementId: 'management_interface',
-                                    view: "FormDropdownView",
-                                    viewConfig: {
-                                        path: 'network.management_interface', dataBindValue: 'network().management_interface', class: "span6",
-                                        elementConfig: {
-                                            placeholder: smwl.TITLE_SELECT_MANAGEMENT_INTERFACE, dataTextField: "id", dataValueField: "id",
-                                            data: [],
-                                            onInit: function (serverModel) {
-                                                var managementInterfaces = [],
-                                                    managementInterfaceValue = serverModel.attributes.network.management_interface,
-                                                    controlDataInterfaces = [],
-                                                    controlDataInterfaceValue = serverModel.attributes.contrail.control_data_interface,
-                                                    bondMemberInterfaces = [];
-
-                                                $.each(serverModel.attributes.network.interfaces, function(interfaceKey, interfaceValue) {
-                                                    bondMemberInterfaces = bondMemberInterfaces.concat(interfaceValue.member_interfaces);
-                                                });
-
-                                                $.each(serverModel.attributes.network.interfaces, function(interfaceKey, interfaceValue) {
-                                                    if (bondMemberInterfaces.indexOf(interfaceValue.name) == -1) {
-                                                        if (interfaceValue.type == 'physical' && interfaceValue.dhcp) {
-                                                            managementInterfaces.push({
-                                                                id: interfaceValue.name,
-                                                                text: interfaceValue.name
-                                                            });
-                                                        }
-
-                                                        controlDataInterfaces.push({
-                                                            id: interfaceValue.name,
-                                                            text: interfaceValue.name
-                                                        });
-                                                    }
-                                                });
-
-                                                setTimeout(function(){
-                                                    $('#management_interface_dropdown').data('contrailDropdown').setData(managementInterfaces);
-                                                    $('#management_interface_dropdown').data('contrailDropdown').value(managementInterfaceValue)
-                                                    $('#control_data_interface_dropdown').data('contrailDropdown').setData(controlDataInterfaces);
-                                                    $('#control_data_interface_dropdown').data('contrailDropdown').value(controlDataInterfaceValue)
-                                                }, 1000);
-                                            }
-                                        }
-                                    }
-                                }
+                                {elementId: 'password', view: "FormInputView", viewConfig: {path: 'password', type: 'password', dataBindValue: 'password', class: "span6"}}
                             ]
                         }
                     ]
@@ -632,7 +588,7 @@ define([
                                     viewConfig: {
                                         path: 'id',
                                         class: "span12",
-                                        modelAttributePath: 'interfaces',
+                                        modelAttributePath: 'network.interfaces',
                                         elementConfig: {
                                             options: {
                                                 uniqueColumn: 'name'
@@ -780,10 +736,10 @@ define([
                                     elementId: 'management_interface',
                                     view: "FormDropdownView",
                                     viewConfig: {
-                                        path: 'management_interface', dataBindValue: 'management_interface', class: "span6",
+                                        path: 'network.management_interface', dataBindValue: 'network().management_interface', class: "span6",
                                         elementConfig: {
                                             placeholder: smwl.TITLE_SELECT_MANAGEMENT_INTERFACE, dataTextField: "id", dataValueField: "id",
-                                            dataSource: { data: []}
+                                            data: []
                                         }
                                     }
                                 }
@@ -828,13 +784,14 @@ define([
                                 {
                                     elementId: 'control_data_interface',
                                     view: "FormDropdownView",
-                                    viewConfig: {path: 'base_image_id', dataBindValue: 'base_image_id', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", dataSource: { type: 'remote', url: smwu.getObjectDetailUrl(smwc.IMAGE_PREFIX_ID, 'filterInImages')}}}
+                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", dataSource: { data: []}}}
                                 }
                             ]
                         }
                     ]
                 }
-            },
+            }
+            /*
             {
                 elementId: smwu.formatElementId([prefixId, smwl.TITLE_ROUTE_CONFIGRATIONS]),
                 title: smwl.TITLE_ROUTE_CONFIGRATIONS,

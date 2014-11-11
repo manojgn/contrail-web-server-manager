@@ -16,7 +16,7 @@ define([
                 elId = this.attributes.elementId,
                 columns = viewConfig.elementConfig.columns,
                 options = viewConfig.elementConfig.options,
-                data = model.model().attributes[viewConfig.modelAttributePath];
+                data = model.getValueByPath(viewConfig.modelAttributePath);
 
             var grid,
                 defaultDataItem = {},
@@ -79,7 +79,6 @@ define([
                 if(contrail.checkIfExist(args.item[options.uniqueColumn]) && args.item[options.uniqueColumn] != '') {
                     var item = $.extend(true, {}, defaultDataItem, args.item);
 
-                    item.cgrid = 'cgr_' + data.length;
                     thisGrid.invalidateRow(data.length);
                     data.push(item);
                     thisGrid.updateRowCount();

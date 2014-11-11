@@ -340,6 +340,10 @@ define([
                     required: true,
                     msg: smwm.getRequiredMessage('base_image_id')
                 },
+                'gateway': {
+                    required: true,
+                    msg: smwm.getRequiredMessage('gateway')
+                },
                 'network.management_interface': {
                     required: true,
                     msg: smwm.getRequiredMessage('management_interface')
@@ -359,14 +363,6 @@ define([
                 'id': {
                     required: true,
                     msg: smwm.getRequiredMessage('id')
-                },
-                'network.management_interface': {
-                    required: true,
-                    msg: smwm.getRequiredMessage('management_interface')
-                },
-                'contrail.control_data_interface': {
-                    required: true,
-                    msg: smwm.getRequiredMessage('control_data_interface')
                 },
                 'ipmi_address': {
                     required: false,

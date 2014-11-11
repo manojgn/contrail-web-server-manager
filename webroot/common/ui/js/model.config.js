@@ -51,14 +51,11 @@ define([
                 'cluster_id': null,
                 'domain': "contrail.juniper.net",
                 'discovered': null,
-                'gateway': null,
                 'email': null,
-                'subnet_mask': null,
                 'static_ip': null,
                 'mac_address': null,
                 'base_image_id': null,
                 'package_image_id': null,
-                'ip_address': null,
                 'password': null,
                 'ipmi_address': null,
                 'ipmi_username': 'ADMIN',
@@ -70,8 +67,14 @@ define([
                 'parameters': {},
                 'tag': {},
                 'roles': ['compute'],
-                'interfaces': [],
-                'routes': []
+                'contrail': {
+                    'control_data_interface': null
+                },
+                'network': {
+                    'management_interface': null,
+                    'provisioning': "kickstart",
+                    'interfaces': []
+                }
             };
         };
 
