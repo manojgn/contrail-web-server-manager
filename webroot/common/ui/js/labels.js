@@ -199,6 +199,8 @@ define([
         this.TITLE_CONFIGURE_INTERFACES = 'Configure Interfaces';
         this.TITLE_SELECT_MANAGEMENT_INTERFACE = 'Select Management Interface';
         this.TITLE_SELECT_CONTROL_DATA_INTERFACE = 'Select Control Data Interface';
+        this.TITLE_SERVER_DETAIL = 'Details';
+        this.TITLE_CONFIGURE_INTERFACES = 'Configure Interfaces';
 
         this.TITLE_SAVE_NEXT = 'Save &amp; Next';
         this.TITLE_NEXT = 'Next';
