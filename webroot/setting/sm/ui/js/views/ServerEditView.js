@@ -375,10 +375,15 @@ define([
                                                             managementInterfacePrevData = $('#management_interface_dropdown').data('contrailDropdown').getAllData(),
                                                             managementInterfaceData = [],
                                                             controlDataInterfacePrevData = $('#control_data_interface_dropdown').data('contrailDropdown').getAllData(),
-                                                            controlDataInterfaceData = [];
+                                                            controlDataInterfaceData = [],
+                                                            bondMemberInterfaces = [];
+
+                                                        $.each(interfaces, function(interfaceKey, interfaceValue) {
+                                                            bondMemberInterfaces = bondMemberInterfaces.concat(interfaceValue.member_interfaces);
+                                                        });
 
                                                         $.each(interfaces, function (interfaceKey, interfaceValue) {
-                                                            if (interfaceValue.name != '') {
+                                                            if (interfaceValue.name != '' && bondMemberInterfaces.indexOf(interfaceValue.name) == -1) {
                                                                 if (interfaceValue.type == 'physical') {
                                                                     managementInterfaceData.push({
                                                                         id: interfaceValue.name,
@@ -457,12 +462,7 @@ define([
                                                     field: "ip_address",
                                                     width: 110,
                                                     editor: ContrailGrid.Editors.Text,
-                                                    formatter: function (r, c, v, cd, dc) {
-                                                        return (dc.dhcp) ? '' : ContrailGrid.Formatters.Text(r, c, v, cd, dc);
-                                                    },
-                                                    editEnabler: function (dc) {
-                                                        return (!dc.dhcp);
-                                                    },
+                                                    formatter: ContrailGrid.Formatters.Text,
                                                     validator: function (value) {
                                                         var pattern = new RegExp(smwc.PATTERN_SUBNET_MASK),
                                                             valid = pattern.test(value);
@@ -480,12 +480,7 @@ define([
                                                 {
                                                     id: "default_gateway", name: "Gateway", field: "default_gateway", width: 70,
                                                     editor: ContrailGrid.Editors.Text,
-                                                    formatter: function (r, c, v, cd, dc) {
-                                                        return (dc.dhcp) ? '' : ContrailGrid.Formatters.Text(r, c, v, cd, dc);
-                                                    },
-                                                    editEnabler: function (dc) {
-                                                        return (!dc.dhcp);
-                                                    },
+                                                    formatter: ContrailGrid.Formatters.Text,
                                                     validator: function (value) {
                                                         var pattern = new RegExp(smwc.PATTERN_IP_ADDRESS),
                                                             valid = pattern.test(value);
@@ -553,20 +548,27 @@ define([
                                                 var managementInterfaces = [],
                                                     managementInterfaceValue = serverModel.attributes.network.management_interface,
                                                     controlDataInterfaces = [],
-                                                    controlDataInterfaceValue = serverModel.attributes.contrail.control_data_interface;
+                                                    controlDataInterfaceValue = serverModel.attributes.contrail.control_data_interface,
+                                                    bondMemberInterfaces = [];
 
                                                 $.each(serverModel.attributes.network.interfaces, function(interfaceKey, interfaceValue) {
-                                                    if (interfaceValue.type == 'physical') {
-                                                        managementInterfaces.push({
+                                                    bondMemberInterfaces = bondMemberInterfaces.concat(interfaceValue.member_interfaces);
+                                                });
+
+                                                $.each(serverModel.attributes.network.interfaces, function(interfaceKey, interfaceValue) {
+                                                    if (bondMemberInterfaces.indexOf(interfaceValue.name) == -1) {
+                                                        if (interfaceValue.type == 'physical') {
+                                                            managementInterfaces.push({
+                                                                id: interfaceValue.name,
+                                                                text: interfaceValue.name
+                                                            });
+                                                        }
+
+                                                        controlDataInterfaces.push({
                                                             id: interfaceValue.name,
                                                             text: interfaceValue.name
                                                         });
                                                     }
-
-                                                    controlDataInterfaces.push({
-                                                        id: interfaceValue.name,
-                                                        text: interfaceValue.name
-                                                    });
                                                 });
 
                                                 setTimeout(function(){
