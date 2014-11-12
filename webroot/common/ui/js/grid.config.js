@@ -280,6 +280,13 @@ define([
 
             return serverColumns;
         };
+        
+        this.getBaremetalServerColumns = function (baremetalServerColumnsType) {
+            var serverColumns = [{id:'id',
+                field:'test',
+                name:'test'}];
+            return serverColumns;
+        };
     }
 
     return GridConfig;

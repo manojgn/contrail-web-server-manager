@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="bm-template" xmlns="http://www.w3.org/1999/html">
+    <div id="{{name}}-container" class="row-fluid ">
+        <div id="{{name}}-results" class="row-fluid"></div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="bm-edit-form-template">
+    <div class="alert alert-error" data-bind="visible: errors().{{prefixId}}_form_error">
+        <strong>Error: </strong>
+        <span data-bind="text: errors().{{prefixId}}_form_error"></span>
+    </div>
+    <form name="{{prefixId}}Form" id="sm-{{prefixId}}-form" onsubmit="return false;" class="">
+    </form>
+</script>
+
