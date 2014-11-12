@@ -368,7 +368,39 @@ define([
                                         modelAttributePath: 'network.interfaces',
                                         elementConfig: {
                                             options: {
-                                                uniqueColumn: 'name'
+                                                uniqueColumn: 'name',
+                                                events: {
+                                                    onUpdate: function () {
+                                                        var interfaces = $('#server-interfaces-grid').data('contrailDynamicgrid')._grid.getData(),
+                                                            managementInterfacePrevData = $('#management_interface_dropdown').data('contrailDropdown').getAllData(),
+                                                            managementInterfaceData = [],
+                                                            controlDataInterfacePrevData = $('#control_data_interface_dropdown').data('contrailDropdown').getAllData(),
+                                                            controlDataInterfaceData = [];
+
+                                                        $.each(interfaces, function (interfaceKey, interfaceValue) {
+                                                            if (interfaceValue.name != '') {
+                                                                if (interfaceValue.type == 'physical') {
+                                                                    managementInterfaceData.push({
+                                                                        id: interfaceValue.name,
+                                                                        text: interfaceValue.name
+                                                                    });
+                                                                }
+
+                                                                controlDataInterfaceData.push({
+                                                                    id: interfaceValue.name,
+                                                                    text: interfaceValue.name
+                                                                });
+                                                            }
+                                                        });
+
+                                                        if (JSON.stringify(managementInterfacePrevData) != JSON.stringify(managementInterfaceData)) {
+                                                            $('#management_interface_dropdown').data('contrailDropdown').setData(managementInterfaceData)
+                                                        }
+                                                        if (JSON.stringify(controlDataInterfacePrevData) != JSON.stringify(controlDataInterfaceData)) {
+                                                            $('#control_data_interface_dropdown').data('contrailDropdown').setData(controlDataInterfaceData)
+                                                        }
+                                                    }
+                                                }
                                             },
                                             columns: [
                                                 {
@@ -516,7 +548,7 @@ define([
                                         path: 'network.management_interface', dataBindValue: 'network().management_interface', class: "span6",
                                         elementConfig: {
                                             placeholder: smwl.TITLE_SELECT_MANAGEMENT_INTERFACE, dataTextField: "id", dataValueField: "id",
-                                            data: [{'id': 'eth1'}]
+                                            data: []
                                         }
                                     }
                                 }
@@ -561,7 +593,7 @@ define([
                                 {
                                     elementId: 'control_data_interface',
                                     view: "FormDropdownView",
-                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", data: [{'id': 'eth1'}]}}
+                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", data: []}}
                                 }
                             ]
                         }

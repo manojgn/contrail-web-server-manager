@@ -98,6 +98,12 @@ define([
                 }
             });
 
+            grid.onActiveCellChanged.subscribe(function (e, args) {
+                if (contrail.checkIfFunction(options.events.onUpdate)) {
+                    options.events.onUpdate();
+                }
+            });
+
             $('#' + elId).addClass('contrail-grid contrail-grid-editable');
 
             $('#' + elId)
@@ -119,6 +125,10 @@ define([
 
                     data.splice(rowIndex, 1);
                     thisGrid.setData(data);
+
+                    if (contrail.checkIfFunction(options.events.onUpdate)) {
+                        options.events.onUpdate();
+                    }
                 });
 
         }
