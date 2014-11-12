@@ -11,7 +11,9 @@ define([
         this.PACKAGE_PREFIX_ID = 'package';
         this.CLUSTER_PREFIX_ID = 'cluster';
         this.SERVER_PREFIX_ID = 'server';
+        this.BAREMETAL_PREFIX_ID = 'baremetal';
         this.SM_PREFIX_ID = 'sm';
+        this.BM_PREFIX_ID = 'bm';
 
         this.TMPL_SUFFIX_ID = "-template";
         this.RESULTS_SUFFIX_ID = "-results";
@@ -109,7 +111,9 @@ define([
         this.TMPL_DETAIL_PAGE = "sm-detail-page-template";
         this.TMPL_DETAIL_PAGE_ACTION = "sm-detail-page-action-template";
         this.TMPL_DELETE_IMAGE = "sm-delete-image-template";
-        this.TMPL_DELETE_PACKAGE = "sm-delete-package-template"
+        this.TMPL_DELETE_PACKAGE = "sm-delete-package-template";
+        
+        this.TMPL_BM_EDIT_FORM = "bm-edit-form-template";
     }
     return Constants;
 });
