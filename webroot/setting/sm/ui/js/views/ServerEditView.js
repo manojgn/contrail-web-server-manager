@@ -548,7 +548,34 @@ define([
                                         path: 'network.management_interface', dataBindValue: 'network().management_interface', class: "span6",
                                         elementConfig: {
                                             placeholder: smwl.TITLE_SELECT_MANAGEMENT_INTERFACE, dataTextField: "id", dataValueField: "id",
-                                            data: []
+                                            data: [],
+                                            onInit: function (serverModel) {
+                                                var managementInterfaces = [],
+                                                    managementInterfaceValue = serverModel.attributes.network.management_interface,
+                                                    controlDataInterfaces = [],
+                                                    controlDataInterfaceValue = serverModel.attributes.contrail.control_data_interface;
+
+                                                $.each(serverModel.attributes.network.interfaces, function(interfaceKey, interfaceValue) {
+                                                    if (interfaceValue.type == 'physical') {
+                                                        managementInterfaces.push({
+                                                            id: interfaceValue.name,
+                                                            text: interfaceValue.name
+                                                        });
+                                                    }
+
+                                                    controlDataInterfaces.push({
+                                                        id: interfaceValue.name,
+                                                        text: interfaceValue.name
+                                                    });
+                                                });
+
+                                                setTimeout(function(){
+                                                    $('#management_interface_dropdown').data('contrailDropdown').setData(managementInterfaces);
+                                                    $('#management_interface_dropdown').data('contrailDropdown').value(managementInterfaceValue)
+                                                    $('#control_data_interface_dropdown').data('contrailDropdown').setData(controlDataInterfaces);
+                                                    $('#control_data_interface_dropdown').data('contrailDropdown').value(controlDataInterfaceValue)
+                                                }, 1000);
+                                            }
                                         }
                                     }
                                 }
@@ -593,7 +620,7 @@ define([
                                 {
                                     elementId: 'control_data_interface',
                                     view: "FormDropdownView",
-                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", data: []}}
+                                    viewConfig: {path: 'contrail.control_data_interface', dataBindValue: 'contrail().control_data_interface', class: "span6", elementConfig: {placeholder: smwl.TITLE_SELECT_CONTROL_DATA_INTERFACE, dataTextField: "id", dataValueField: "id", data: []}}
                                 }
                             ]
                         }
