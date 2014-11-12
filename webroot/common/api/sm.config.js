@@ -4,7 +4,7 @@
 
 var smConfig = {'sm': {}};
 
-smConfig.sm.server_ip = '127.0.0.1';
+smConfig.sm.server_ip = '10.204.217.247';
 smConfig.sm.server_port = 9001;
 
 smConfig.sm.introspect_ip = '127.0.0.1';

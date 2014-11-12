@@ -11,7 +11,9 @@ define([
         this.PACKAGE_PREFIX_ID = 'package';
         this.CLUSTER_PREFIX_ID = 'cluster';
         this.SERVER_PREFIX_ID = 'server';
+        this.BAREMETAL_PREFIX_ID = 'baremetal';
         this.SM_PREFIX_ID = 'sm';
+        this.BM_PREFIX_ID = 'bm';
 
         this.TMPL_SUFFIX_ID = "-template";
         this.RESULTS_SUFFIX_ID = "-results";
@@ -113,6 +115,8 @@ define([
 
         this.IMAGE_TYPES = ['ubuntu', 'centos', 'redhat', 'esxi5.1', 'esxi5.5'];
         this.PACKAGE_TYPES = ['contrail-ubuntu-package', 'contrail-centos-package', 'contrail-storage-ubuntu-package'];
+        
+        this.TMPL_BM_EDIT_FORM = "bm-edit-form-template";
     }
     return Constants;
 });
