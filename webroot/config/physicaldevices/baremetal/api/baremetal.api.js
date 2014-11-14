@@ -43,7 +43,7 @@ function getBaremetalDetails(request, response, appData)
     //get physical routers
     configApiServer.apiGet('/physical-routers', appData, function(error, pRouters){
         if(error || pRouters == null || pRouters.length == 0) {
-            commonUtils.handleJSONResponse(error, response, null);
+            commonUtils.handleJSONResponse(error, response, []);
             return;
         }
         var liUUIDArry = [];
@@ -60,7 +60,7 @@ function getBaremetalDetails(request, response, appData)
                 function(error, pRouterDetails) {
                     //console.log("ERROR:", JSON.stringify(pRouterDetails));
                     if(error || pRouterDetails == null || pRouterDetails.length == 0) {
-                        commonUtils.handleJSONResponse(error, response, null);
+                        commonUtils.handleJSONResponse(error, response, []);
                         return;
                     }
                     var pInfObjArry = [];
@@ -90,7 +90,7 @@ function getBaremetalDetails(request, response, appData)
                         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                             function(error, pInfDetails) {
                                 if(error || pInfDetails == null || pInfDetails.length == 0){
-                                    commonUtils.handleJSONResponse(error, response, null);
+                                    commonUtils.handleJSONResponse(error, response, []);
                                     return;
                                 }
                                 var pInfDetailsLen =  pInfDetails.length;
@@ -126,7 +126,7 @@ function getVirtualMachineInterfaceDetails(request, response, appData, lInfObjAr
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, lInfDetails) {
                 if(error || lInfDetails == null || lInfDetails.length == 0) {
-                    commonUtils.handleJSONResponse(error, response, null);
+                    commonUtils.handleJSONResponse(error, response, []);
                     return;
                 }
                 var result = [];
@@ -163,12 +163,12 @@ function getVirtualMachineInterfaceDetails(request, response, appData, lInfObjAr
                             }
                             commonUtils.handleJSONResponse(error, response, result);
                         } else {
-                            commonUtils.handleJSONResponse(error, response, null);
+                            commonUtils.handleJSONResponse(error, response, []);
                         }
                     });
                    
                 } else {
-                    commonUtils.handleJSONResponse(error, response, null);
+                    commonUtils.handleJSONResponse(error, response, []);
                 }
             }
     );
@@ -190,7 +190,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, data) {
                 if ((null != error) || (null == data) || (!data.length)) {
-                    commonUtils.handleJSONResponse(error, response, null);
+                    commonUtils.handleJSONResponse(error, response, []);
                     return;
                 }
                 dataObjArr = [];
@@ -217,7 +217,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                          commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                          function(error, data) {
                          if ((null != error) || (null == data) || (!data.length)) {
-                             commonUtils.handleJSONResponse(error, response, null);
+                             commonUtils.handleJSONResponse(error, response, []);
                              return;
                          }
                          var instIPDataCnt = data.length;
