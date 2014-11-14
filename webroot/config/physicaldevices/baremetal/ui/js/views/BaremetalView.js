@@ -47,9 +47,16 @@ define([
                                 $('#btnActionServers').removeClass('disabled-link').attr('data-toggle', 'dropdown');
                             }
                         },
+                        detail: {
+                            template: $('#' + smwc.TMPL_BAREMETAL_PAGE_DETAIL).html()
+                        }                        
                     },
                     dataSource: { 
-                        data : [{'test':'test'}]
+                        remote: {
+                            ajaxConfig: {
+                                url: smwc.URL_BAREMETAL_SERVER
+                            }
+                        }
                     }
                 }
             };
