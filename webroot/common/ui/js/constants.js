@@ -76,7 +76,8 @@ define([
         this.URL_OBJ_SERVER_ID = '/sm/objects/server?id=';
         this.URL_SERVER_REIMAGE = '/sm/server/reimage';
         this.URL_OBJ_IMAGE_ID = '/sm/objects/image?id=';
-
+        this.URL_BAREMETAL_SERVER = '/api/tenants/config/baremetal-details';
+         
         this.CACHED_TAG_COLORS = {};
 
         this.URL_HASH_SM_CLUSTERS = 'setting_sm_clusters';
@@ -108,6 +109,7 @@ define([
         this.TMPL_SECTION_VIEW = "sm-section-view-template";
         this.TMPL_EDIT_FORM = "sm-edit-form-template";
         this.TMPL_2ROW_GROUP_DETAIL = "sm-grid-2-row-group-detail-template";
+        this.TMPL_BAREMETAL_PAGE_DETAIL = "baremetal-detail-page-template";
         this.TMPL_DETAIL_PAGE = "sm-detail-page-template";
         this.TMPL_DETAIL_PAGE_ACTION = "sm-detail-page-action-template";
         this.TMPL_DELETE_IMAGE = "sm-delete-image-template";
