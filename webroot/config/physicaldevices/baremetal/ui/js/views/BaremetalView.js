@@ -70,10 +70,10 @@ define([
               "title": smwl.TITLE_ADD_CLUSTER,
               "iconClass": "icon-plus",
               "onClick": function () {
-                  var clusterModel = new ClusterModel();
+                  var baremetalModel = new BaremetalModel();
     
-                  clusterEditView.model = clusterModel;
-                  clusterEditView.renderAddCluster({"title": smwl.TITLE_ADD_CLUSTER, callback: function () {
+                  baremetalEditView.model = baremetalModel;
+                  baremetalEditView.renderAddBaremetal({"title": smwl.TITLE_BAREMETAL_SERVER, callback: function () {
                       var dataView = $(gridElId).data("contrailGrid")._dataView;
                       dataView.refreshData();
                   }});

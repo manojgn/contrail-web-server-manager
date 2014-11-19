@@ -202,6 +202,19 @@ define([
         this.TITLE_CONFIGURE_INTERFACES = 'Configure Interfaces';
         this.TITLE_SELECT_MANAGEMENT_INTERFACE = 'Select Management Interface';
         this.TITLE_SELECT_CONTROL_DATA_INTERFACE = 'Select Control Data Interface';
+        this.TITLE_SERVER_DETAIL = 'Details';
+        this.TITLE_CONFIGURE_INTERFACES = 'Configure Interfaces';
+        this.TITLE_SELECT_MANAGEMENT_INTERFACE = 'Select Management Interface';
+        this.TITLE_SELECT_CONTROL_DATA_INTERFACE = 'Select Control Data Interface';
+        this.TITLE_SERVER_DETAIL = 'Details';
+        this.TITLE_CONFIGURE_INTERFACES = 'Configure Interfaces';
+        
+        this.TITLE_BAREMETAL_SERVERS = 'Baremetal Servers';
+        this.TITLE_BAREMETAL_SERVER = 'Baremetal Server';
+        this.TITLE_ADD_BAREMETAL_SERVER = 'Add Baremetal Servers';
+        this.TITLE_SELECT_BAREMETAL_SERVER = 'Select Baremetal Server';
+        this.TITLE_SELECT_INTERFACE = 'Select Interface'
+        this.TITLE_SELECT_IMAGE = 'Select Image';
 
         this.TITLE_SAVE_NEXT = 'Save &amp; Next';
         this.TITLE_NEXT = 'Next';
@@ -214,6 +227,8 @@ define([
         this.SEARCH_ROLES = 'Search Roles';
         this.FILTER_TAGS = 'Filter Tags';
         this.SEARCH_TAGS = 'Search Tags';
+        this.SELECT_NETWORK = 'Select Network';
+        this.SELECT_INTERFACE = 'Select Interface';
     };
     return Labels;
 });

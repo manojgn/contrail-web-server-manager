@@ -43,6 +43,10 @@
 									<view>baremetal.view</view>
 									<class>baremetalPageLoader</class>
 								</resource>
+								<resource>
+                                    <rootDir>/setting/sm/ui</rootDir>
+                                    <view>sm.view</view>
+                                </resource>
 							</resources>
 						</item>
 					</items>
