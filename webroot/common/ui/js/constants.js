@@ -77,7 +77,8 @@ define([
         this.URL_SERVER_REIMAGE = '/sm/server/reimage';
         this.URL_OBJ_IMAGE_ID = '/sm/objects/image?id=';
         this.URL_BAREMETAL_SERVER = '/api/tenants/config/baremetal-details';
-         
+        this.URL_BAREMETAL_ADD = '/api/tenants/config/baremetal';
+        this.URL_NETWORKS = '/api/admin/config/get-data?type=virtual-network';
         this.CACHED_TAG_COLORS = {};
 
         this.URL_HASH_SM_CLUSTERS = 'setting_sm_clusters';

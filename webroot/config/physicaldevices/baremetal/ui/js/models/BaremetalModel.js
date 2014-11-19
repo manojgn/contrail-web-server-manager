@@ -13,59 +13,63 @@ define([
         
         defaultConfig: smwmc.getServerModel(),
         
+        configureBaremetal: function (checkedRows, callbackObj) {
+            var ajaxConfig = {};
+            if (this.model().isValid(true, 'configureBaremetalValidation')) {
+                var serverAttrs = this.model().attributes,
+                    putData = {}, servers = [],
+                    that = this;
+
+                for (var i = 0; i < checkedRows.length; i++) {
+                    servers.push({'id': checkedRows[i]['id'], 'package_image_id': serverAttrs['package_image_id']});
+                }
+                putData = servers;
+
+                ajaxConfig.type = "POST";
+                ajaxConfig.data = JSON.stringify(putData);
+                ajaxConfig.url = smwc.URL_BAREMETAL_ADD;
+                console.log(ajaxConfig);
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                    // TODO do the backend calls here
+                    // First create the VMI in the VN
+                    // Create the LI. Set the ref to the above VMI
+                    
+                }, function (response) {
+                    console.log(response);
+                    if (contrail.checkIfFunction(callbackObj.success)) {
+                        callbackObj.success();
+                    }
+                }, function (error) {
+                    console.log(error);
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                });
+            } else {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(this.getFormErrorText(smwc.SERVER_PREFIX_ID));
+                }
+            }
+        },
+        
         validations: {
-            reimageValidation: {
-                'base_image_id': {
+            configureBaremetalValidation: {
+                'package_image_id': {
                     required: true,
-                    msg: smwm.getRequiredMessage('base_image_id')
+                    msg: smwm.getRequiredMessage('package_image_id')
                 },
-                'gateway': {
+                'baremetal_interface': {
                     required: true,
-                    msg: smwm.getRequiredMessage('gateway')
-                }
-            },
-            configureValidation: {
-                'id': {
+                    msg: smwm.getRequiredMessage('baremetal_interface')
+                },
+                'baremetal_network': {
                     required: true,
-                    msg: smwm.getRequiredMessage('id')
+                    msg: smwm.getRequiredMessage('baremetal_network')
                 },
-                'ip_address': {
-                    required: true,
-                    pattern: smwc.PATTERN_IP_ADDRESS,
-                    msg: smwm.getInvalidErrorMessage('ip_address')
-                },
-                'ipmi_address': {
-                    required: false,
-                    pattern: smwc.PATTERN_IP_ADDRESS,
-                    msg: smwm.getInvalidErrorMessage('ipmi_address')
-                },
-                'mac_address': {
-                    required: true,
-                    pattern: smwc.PATTERN_MAC_ADDRESS,
-                    msg: smwm.getInvalidErrorMessage('mac_address')
-                },
-                'email': {
-                    required: false,
-                    pattern: 'email',
-                    msg: smwm.getInvalidErrorMessage('email')
-                },
-                'gateway': {
-                    required: true,
-                    pattern: smwc.PATTERN_IP_ADDRESS,
-                    msg: smwm.getInvalidErrorMessage('gateway')
-                },
-                'mac_address': {
-                    required: true,
-                    pattern: smwc.PATTERN_MAC_ADDRESS,
-                    msg: smwm.getInvalidErrorMessage('mac_address')
-                },
-                'subnet_mask': {
-                    required: false,
-                    pattern: smwc.PATTERN_SUBNET_MASK,
-                    msg: smwm.getInvalidErrorMessage('subnet_mask')
-                }
-            },
-            editTagsValidation: {}
+            }
         }
     });
     return BaremetalModel;

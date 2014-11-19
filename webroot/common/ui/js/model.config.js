@@ -91,6 +91,17 @@ define([
                 'parameters': {}
             };
         };
+        
+        this.getBaremetalModel = function (category) {
+            return {
+                'id': null,
+                'category': category,
+                'type': null,
+                'version': null,
+                'path': null,
+                'parameters': {}
+            };
+        };
     };
 
     return DefaultConfig;
