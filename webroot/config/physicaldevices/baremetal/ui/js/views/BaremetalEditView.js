@@ -574,7 +574,6 @@ define([
         return gridElementConfig;
     }
     
-<<<<<<< HEAD
     var reimageViewConfig = {
         elementId: prefixId,
         view: "SectionView",
@@ -592,11 +591,10 @@ define([
             ]
         }
     };
-=======
+    
     function removeAlreadyConfiguredBaremetals(result){
         
     }
->>>>>>> Baremetal addition backend code and delete baremetal initial code
     
     function formatData4Ajax(response) {
         var filterServerData = [];
