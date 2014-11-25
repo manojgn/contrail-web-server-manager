@@ -71,51 +71,6 @@ define([
             smwv.bind(this);
         }
     });
-    var gridConfig = {
-            header: {
-                title: {
-                    text: smwl.TITLE_SELECT_SERVERS
-                }
-            },
-            columnHeader : {
-                columns : [
-                       {
-                           id : 'name',
-                           field : 'name',
-                           name : 'Name' ,
-                           cssClass :'cell-hyperlink-blue'
-                       },
-                       {
-                           id : 'ip',
-                           field : 'ip',
-                           name : 'IP' ,
-                           cssClass :'cell-hyperlink-blue'
-                       }
-                 ]
-            },
-            body : {
-                options : {         
-                    forceFitColumns: true,
-                },
-                dataSource : {
-                    data : [{'name':'Server1','ip':'1.1.1.1'},
-                            {'name':'Server2','ip':'2.2.2.2'}]
-                }
-            },
-            statusMessages: {
-                loading: {
-                    text: 'Loading Baremetals..'
-                },
-                empty: {
-                    text: 'No Baremetals.'
-                }, 
-                errorGettingData: {
-                    type: 'error',
-                    iconClasses: 'icon-warning',
-                    text: 'Error in getting Baremetals.'
-                }
-            }
-    };
     
     var selectServerViewConfig = [{
         elementId: smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]),
@@ -204,28 +159,45 @@ define([
                                                     editor: ContrailGrid.Editors.Text,
                                                     formatter: ContrailGrid.Formatters.Text,
                                                     elementConfig: {
-                                                        placeholder: 'Not required'
+                                                        placeholder: 'Dummy field'
                                                     }
                                                 },
                                                {
                                                    id: "baremetal_interface", name: "Interface", field: "interface", width: 250,
                                                    //defaultValue: 'physical',
                                                    editor: ContrailGrid.Editors.ContrailDropdown,
+                                                   editEnabler: function (dc) {
+                                                       return (dc.type == 'bond');
+                                                   },
+                                                   initSetData: function (args, $contrailDropdown) {
+                                                       var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows()[0];
+                                                       var dummydata = smwc.DUMMY_DATA[0];
+                                                       checkedRows['network'] = dummydata.network;
+                                                       var interfaceData = [];
+                                                       var interfaces = jsonPath(checkedRows,'$.network.interfaces')[0];
+                                                       if(interfaces){
+                                                           $.each(interfaces,function(i,intf){
+                                                               interfaceData.push({text:intf.name,value:intf.mac_address});
+                                                           });
+                                                       }
+                                                       $contrailDropdown.setData(interfaceData)
+
+                                                   },
                                                    elementConfig: {
                                                        width: 'element',
                                                        placeholder: 'Select Interface',
                                                        dataTextField: "text",
                                                        dataValueField: "value",
-//                                                       data: smwc.INTERFACE_TYPES
-                                                       data : function(){
-                                                           if($('#select-baremetal-filtered-servers').length > 0){
-                                                               var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows();
-                                                               var selectedServer = checkedRows[0];
-                                                               return [{text:'Intf1', value:'intf1'}];
-                                                           } else {
-                                                               return [{text:'No Interfaces found', value:'None'}];
-                                                           }
-                                                       }()
+                                                       data: []
+//                                                       data : function(){
+//                                                           if($('#select-baremetal-filtered-servers').length > 0){
+//                                                               var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows();
+//                                                               var selectedServer = checkedRows[0];
+//                                                               return [{text:'Intf1', value:'intf1'}];
+//                                                           } else {
+//                                                               return [{text:'No Interfaces found', value:'None'}];
+//                                                           }
+//                                                       }()
                                                        
                                                    }
 
@@ -313,6 +285,19 @@ define([
                                                         smwc.IMAGE_PREFIX_ID,
                                                         'filterInImages')
                                     }
+                                }
+                            }
+                        },
+                        {
+                            elementId: 'baremetal_reimage',
+                            view: "FormCheckboxView",
+                            viewConfig : {
+                                path : 'baremetal_reimage',
+                                class : "span6",
+                                dataBindValue : 'baremetal_reimage',
+                                elementConfig : {
+                                    label:'Reimage',
+                                    isChecked:false
                                 }
                             }
                         }
@@ -410,22 +395,14 @@ define([
                 stepType: 'step',
                 onInitRender: true,
                 onNext: function (params) {
-                    return params.model.configureBaremetal({
-                        init: function () {
-                            baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
-                            smwu.enableModalLoading(modalId);
-                        },
-                        success: function () {
-                            smwu.disableModalLoading(modalId, function () {
-                                callback();
-                                $('#' + modalId).modal('hide');
-                            });
-                        },
-                        error: function (error) {
-                            smwu.disableModalLoading(modalId, function () {
-                                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
-                            });
-                        }
+                    var interfaceMappings = $('#baremetal-interfaces-grid').data('contrailDynamicgrid')._grid.getData();
+                    var selectedServer = $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows()[0];
+                    $.each(interfaceMappings,function(i,interfaceMapping){
+                        var mac = interfaceMapping['interface'];
+                        var vnUUID = interfaceMapping['vn'];
+                        var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
+                        var data = {"vnUUID": vnUUID, "macAddress":mac, moreDetails:moreDetails}; 
+                        configureBaremetal(data,params,baremetalModel);
                     });
                 },
                 buttons: {
@@ -438,36 +415,77 @@ define([
                 }
             }];
         steps = steps.concat(configureServerStepViewConfig);
-        
-        /*
-        Appending Configure Interfaces Steps
-        */
-        /*configureInterfacesStepViewConfig = [{
-            elementId: smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_INTERFACES]),
-            view: "AccordianView",
-            viewConfig: configureInterfacesViewConfig,
-            title: smwl.TITLE_CONFIGURE_INTERFACES,
-            stepType: 'step',
-            onInitRender: false,
-            onNext: function (params) {
-                //TODO
-                return true;
-            },
-            buttons: {
-                finish: {
-                    label: 'Save'
-                },
-                previous: {
-                    visible: true
-                }
-            }
-        }];
-        steps = steps.concat(configureInterfacesStepViewConfig);
-        */
-        
+                
         addBaremetalViewConfig.viewConfig.steps = steps;
 
         return addBaremetalViewConfig;
+    }
+    
+    function configureBaremetal(data,params,baremetalModel){
+        params.model.createVMI(data, {
+            init: function () {
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                smwu.enableModalLoading(modalId);
+            },
+            success: function (response) {
+                var vmiDetails = response['virtual-machine-interface']['fq_name'];
+                createVM(vmiDetails,data,params,baremetalModel);
+            },
+            error: function (error) {
+                smwu.disableModalLoading(modalId, function () {
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                });
+            }
+        });
+    }
+    
+    function createVM(vmiDetails,data,params,baremetalModel){
+        params.model.createVM(vmiDetails[2], {
+            init: function () {
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                smwu.enableModalLoading(modalId);
+            },
+            success: function () {
+                createLogicalInterface(data,vmiDetails,params,baremetalModel);
+            },
+            error: function (error) {
+                smwu.disableModalLoading(modalId, function () {
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                });
+            }
+        });
+    }
+    
+    function createLogicalInterface(data,vmiDetails,params,baremetalModel){
+        params.model.createLogicalInterface(data,vmiDetails, {
+            init: function () {
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                smwu.enableModalLoading(modalId);
+            },
+            success: function () {
+                smwu.disableModalLoading(modalId, function () {
+//                    callback();
+                    $('#' + modalId).modal('hide');
+                });
+            },
+            error: function (error) {
+                smwu.disableModalLoading(modalId, function () {
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                });
+            }
+        });
+    }
+    
+    function getMoreDetailsForInterface(interfaces,mac){
+        var res = {};
+        $.each(interfaces,function(i,intf){
+           if(intf['mac_address'] === mac){
+               res = { tor:intf['tor'],
+                       tor_port:intf['tor_port'],
+                       ip_address:intf['ip_address']};
+           } 
+        });
+        return res;
     }
     
     function getSelectedServerGridElementConfig(gridPrefix, urlParam) {
@@ -540,7 +558,8 @@ define([
                     remote: {
                         ajaxConfig: {
                             url: smwu.getObjectDetailUrl(smwc.SERVER_PREFIX_ID) + '?' + urlParam
-                        }
+                        },
+//                        dataParser: removeAlreadyConfiguredBaremetals
                     }
                 },
                 statusMessages: {
@@ -555,6 +574,7 @@ define([
         return gridElementConfig;
     }
     
+<<<<<<< HEAD
     var reimageViewConfig = {
         elementId: prefixId,
         view: "SectionView",
@@ -572,6 +592,11 @@ define([
             ]
         }
     };
+=======
+    function removeAlreadyConfiguredBaremetals(result){
+        
+    }
+>>>>>>> Baremetal addition backend code and delete baremetal initial code
     
     function formatData4Ajax(response) {
         var filterServerData = [];

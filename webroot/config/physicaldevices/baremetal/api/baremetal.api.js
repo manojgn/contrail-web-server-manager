@@ -156,8 +156,12 @@ function getVirtualMachineInterfaceDetails(request, response, appData, lInfObjAr
                                         var inf = lInterface.name;
                                         var vn = lInterface['vmi_details'].vn_refs[0].to[2];
                                         var vLan = lInterface.logical_interface_vlan_tag;
+                                        var liUuid = lInterface['uuid'];
+                                        var piUuid = lInterface['parent_uuid'];
+                                        var vnUuid = lInterface['vmi_details'].vn_refs[0]['uuid'];
+                                        var vmiUuid = lInterface['vmi_details'].vmi_fq_name[2];
                                         result.push({'mac' : mac, 'ip' : ip, 'physical_router' : pRouter, 'interface' : inf,
-                                            'vn' : vn, 'vlan' : vLan});
+                                            'vn' : vn, 'vlan' : vLan, 'liUuid' : liUuid, 'piUuid': piUuid, 'vnUuid': vnUuid, 'vmiUuid' : vmiUuid});
                                     } 
                                 }    
                             }
