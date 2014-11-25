@@ -39,6 +39,7 @@ define([
                 },
                 body: {
                     options: {
+                        actionCell: rowActionConfig,
                         checkboxSelectable: {
                             onNothingChecked: function (e) {
                                 $('#btnActionServers').addClass('disabled-link').removeAttr('data-toggle');
@@ -64,6 +65,20 @@ define([
             smwu.renderGrid(gridElId, gridConfig);
         },
     });
+    var rowActionConfig = [
+        smwgc.getReimageAction(function (rowIndex) {
+            var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
+                baremetalModel = new BaremetalModel(dataItem),
+                checkedRow = [dataItem],
+                title = smwl.TITLE_REIMAGE;//+ ' ('+ dataItem['id'] +')';
+
+            baremetalEditView.model = baremetalModel;
+            baremetalEditView.renderReimage({"title": title, checkedRows: checkedRow, callback: function () {
+                var dataView = $(gridElId).data("contrailGrid")._dataView;
+                dataView.refreshData();
+            }});
+        }, true)        
+    ];    
     var headerActionConfig = [
           {
               "type": "link",
