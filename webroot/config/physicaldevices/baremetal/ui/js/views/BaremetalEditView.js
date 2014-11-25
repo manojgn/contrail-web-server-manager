@@ -37,6 +37,39 @@ define([
             Knockback.applyBindings(this.model, document.getElementById(modalId));
             smwv.bind(this);
         },
+        renderReimage: function (options) {
+            var editLayout = editTemplate({prefixId: prefixId}),
+                that = this;
+
+            smwu.createModal({'modalId': modalId, 'className': 'modal-700', 'title': options['title'], 'body': editLayout, 'onSave': function () {
+                that.model.reimage({
+                    init: function () {
+                        that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
+                        smwu.enableModalLoading(modalId);
+                    },
+                    success: function () {
+                        options['callback']();
+                        $("#" + modalId).modal('hide');
+                    },
+                    error: function (error) {
+                        smwu.disableModalLoading(modalId, function () {
+                            that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, error.responseText);
+                        });
+                    }
+                });
+                // TODO: Release binding on successful configure
+            }, 'onCancel': function () {
+                Knockback.release(that.model, document.getElementById(modalId));
+                smwv.unbind(that);
+                $("#" + modalId).modal('hide');
+            }});
+
+            smwu.renderView4Config($("#" + modalId).find("#sm-" + prefixId + "-form"), this.model, reimageViewConfig, "configureValidation");
+            this.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
+
+            Knockback.applyBindings(this.model, document.getElementById(modalId));
+            smwv.bind(this);
+        }
     });
     var gridConfig = {
             header: {
@@ -521,6 +554,24 @@ define([
         };
         return gridElementConfig;
     }
+    
+    var reimageViewConfig = {
+        elementId: prefixId,
+        view: "SectionView",
+        viewConfig: {
+            rows: [
+                {
+                    columns: [
+                        {
+                            elementId: 'base_image_id',
+                            view: "FormDropdownView",
+                            viewConfig: {path: 'base_image_id', dataBindValue: 'base_image_id', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", dataSource: {type: 'remote', url: smwu.getObjectDetailUrl(smwc.IMAGE_PREFIX_ID, 'filterInImages')}}}
+                        }
+                    ]
+                }
+            ]
+        }
+    };
     
     function formatData4Ajax(response) {
         var filterServerData = [];
