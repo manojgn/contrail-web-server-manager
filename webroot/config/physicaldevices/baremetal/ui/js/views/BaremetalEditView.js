@@ -42,7 +42,7 @@ define([
                 that = this;
 
             smwu.createModal({'modalId': modalId, 'className': 'modal-700', 'title': options['title'], 'body': editLayout, 'onSave': function () {
-                that.model.reimage({
+                that.model.reimage(options['checkedRows'],{
                     init: function () {
                         that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
                         smwu.enableModalLoading(modalId);
@@ -64,7 +64,7 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-            smwu.renderView4Config($("#" + modalId).find("#sm-" + prefixId + "-form"), this.model, reimageViewConfig, "configureValidation");
+            smwu.renderView4Config($("#" + modalId).find("#bm-" + prefixId + "-form"), this.model, reimageViewConfig, "configureValidation");
             this.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
 
             Knockback.applyBindings(this.model, document.getElementById(modalId));

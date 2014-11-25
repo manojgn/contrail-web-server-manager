@@ -246,6 +246,42 @@ define([
                     msg: smwm.getRequiredMessage('baremetal_network')
                 },
             }
+        },
+        reimage: function (checkedRows, callbackObj) {
+            var ajaxConfig = {};
+            if (this.model().isValid(true, smwc.KEY_REIMAGE_VALIDATION)) {
+                var serverAttrs = this.model().attributes,
+                    putData = {}, servers = [],
+                    that = this;
+
+                for (var i = 0; i < checkedRows.length; i++) {
+                    servers.push({'mac_address': checkedRows[i]['mac'], 'base_image_id': serverAttrs['base_image_id']});
+                }
+                putData = servers;
+                ajaxConfig.type = "POST";
+                ajaxConfig.data = JSON.stringify(putData);
+                ajaxConfig.url = smwc.URL_SERVER_REIMAGE;   
+                console.log(ajaxConfig);
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    console.log(response);
+                    if (contrail.checkIfFunction(callbackObj.success)) {
+                        callbackObj.success();
+                    }
+                }, function (error) {
+                    console.log(error);
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                });
+            }  else {
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(this.getFormErrorText(smwc.SERVER_PREFIX_ID));
+                }
+            }
         }
     });
     return BaremetalModel;
