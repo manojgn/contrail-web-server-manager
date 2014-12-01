@@ -11,7 +11,8 @@ define([
     
     var BaremetalModel = ContrailModel.extend({
         
-        defaultConfig: smwmc.getServerModel(),
+        defaultConfig: $.extend(smwmc.getServerModel(),
+                {'baremetal_reimage':null}),
         
         //Creates the VMI
         createVMI: function (data, callbackObj) {
@@ -23,7 +24,7 @@ define([
                 postObj = {"vnUUID": data['vnUUID'], "macAddress":data['macAddress']};
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(postObj);
-                ajaxConfig.url = '/api/tenants/config/create-port';
+                ajaxConfig.url = smwc.URL_CREATE_PORT;
                 console.log(ajaxConfig);
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
@@ -51,7 +52,7 @@ define([
         createVM: function (vmiId,callbackObj) {
             var ajaxConfig = {};
             ajaxConfig.type = "GET";
-            ajaxConfig.url = '/api/tenants/config/map-virtual-machine-refs/' + vmiId;
+            ajaxConfig.url = smwc.URL_MAP_VIRTUAL_MACHINE_REFS + vmiId;
             console.log(ajaxConfig);
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
@@ -82,18 +83,12 @@ define([
             var pRouterUUID;//TODO
             
             var deferredObj = $.Deferred();
-            fetchPRouterUUIDFromName(pRouter,deferredObj);
-            deferredObj.done( function(response){
-                console.log(response);
-                if(response != null && response['physical-routers'] != null){
-                    $.each(response['physical-routers'],function(i,pr){
-                       if(pr['fq_name'][1] == pRouter){
-                           pRouterUUID = pr['uuid'];
-                       } 
-                    });
+            this.fetchPRouterUUIDFromName(pRouter,deferredObj);
+            deferredObj.done( function(pRouterUUID){
+                if(pRouterUUID != null){
                     //Now get the physical-interface details using the prouter uuid
                     ajaxConfig.type = "GET";
-                    ajaxConfig.url = '/api/tenants/config/physical-interfaces/' + pRouterUUID;
+                    ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID;
                     contrail.ajaxHandler(ajaxConfig, function () {
                     }, function (response) {
                         //on success
@@ -112,12 +107,12 @@ define([
                                 postObject["logical-interface"]["parent_type"] = "physical-interface";
                                 postObject["logical-interface"]["parent_uuid"] = intfUUID;
                                 postObject["logical-interface"]["name"] = name;  
-                                postObject["logical-interface"]["logical_interface_vlan_tag"] = '4';//vlan;//TODO
+                                postObject["logical-interface"]["logical_interface_vlan_tag"] = '0';//vlan always zero
                                 postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiDetails[0], vmiDetails[1], vmiDetails[2]]}];
                                 postObject["logical-interface"]["logical_interface_type"] = 'l2';
                                 ajaxConfig.type = "POST";
                                 ajaxConfig.data = JSON.stringify(postObject);
-                                ajaxConfig.url = '/api/tenants/config/physical-interfaces/' + pRouterUUID + '/Logical';
+                                ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical';
                                 console.log(ajaxConfig);
                                 contrail.ajaxHandler(ajaxConfig, function () {
                                     if (contrail.checkIfFunction(callbackObj.init)) {
@@ -157,33 +152,238 @@ define([
                 } 
             });
         },
+        /**
+         * 1. Delete the VMI
+         * 2. Create the new VMI with the new VN
+         * 3. Create the VM associated to the VMI
+         * 4. Get the current logical interface data
+         * 5. Update the VMI ref to the logical interface
+         */
+       /* editBaremetal: function (data, callbackObj) {
+            var ajaxConfig = {};
+            data = data[0];//assuming only one edit is allowed
+            var vmiUuid = data['vmiUuid'];
+            var vnUuid = data['vnUuid'];
+            var self = this;
+            //First delete the VMI
+            self.deleteVMI(data, {
+                init: function () {
+                    callbackObj.init();
+                },
+                success: function (response) {
+                  //Second create the new VMI with the new VN
+                    self.createVMI(data,{
+                        init: function () {
+                            
+                        },
+                        success: function (response) {
+                            var vmiDetails = response['virtual-machine-interface']['fq_name'];
+                            data['vmiUuid'] = vmiDetails[2];
+                            data['vmiDetails'] = vmiDetails;
+                            //Third create the VM associated to the VMI
+                            self.createVM(vmiDetails[2],{
+                                init: function(){
+                                    
+                                },
+                                success: function (response){
+                                    //Fourth Get the current logical interface data
+//                                    ajaxConfig.type = "GET";
+//                                    ajaxConfig.data = JSON.stringify(postObject);
+//                                    ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical' + '/' + response.uuid;
+//                                    contrail.ajaxHandler(ajaxConfig, function () {
+//                                        //Init
+//                                    }, function (response) {
+                                        console.log(response);
+                                        var ajaxConfig = response;
+                                        var postObj = {};
+                                        var vmiDetails = data['vmiDetails'];
+                                        postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiDetails[0], vmiDetails[1], vmiDetails[2]]}];
+                                        postObject['uuid'] = data['liUuid'];
+                                        ajaxConfig.type = "PUT";
+                                        ajaxConfig.data = JSON.stringify(postObject);
+                                        ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical' + '/' + data['liUuid'];
+                                        console.log(ajaxConfig);
+                                        //Fifth Update the VMI ref to the logical interface
+                                        contrail.ajaxHandler(ajaxConfig, function () {
+                                            if (contrail.checkIfFunction(callbackObj.init)) {
+                                                callbackObj.init();
+                                            }
+                                        }, function (response) {
+                                            console.log(response);
+                                            if (contrail.checkIfFunction(callbackObj.success)) {
+                                                callbackObj.success(response);
+                                            }
+                                        }, function (error) {
+                                            console.log(error);
+                                            if (contrail.checkIfFunction(callbackObj.error)) {
+                                                callbackObj.error(error);
+                                            }
+                                        });//createLogicalInterface
+                                    
+//                                    }, function (error) {
+//                                        //error
+//                                    });//getLogicalInterface
+                                },
+                                error: function(error){
+                                    
+                                }
+                            });//createVM
+                        },
+                        error: function (error) {
+                        }
+                    
+                    });//createVMI
+                },
+                error: function (error) {
+                    callbackObj.error(error);
+                }
+            });//deleteVMI
+        },*/
+        
+        editBaremetal: function (data, callbackObj) {
+            var ajaxConfig = {};
+            data = data[0];//assuming only one edit is allowed
+            var vmiUuid = data['vmiUuid'];
+            var vnUuid = data['vnUuid'];
+            var pRouterUUID = data[''];
+            var prouterDefObj = $.Deferred();
+            var self = this;
+            this.fetchPRouterUUIDFromName(data['physical_router'],prouterDefObj);
+            prouterDefObj.done(function(pRouterUUID){
+                var ajaxConfig = {};
+                var postObject = {};
+                
+                postObject["logical-interface"] = {};
+                postObject["logical-interface"]["fq_name"] = ["default-global-system-config", data['physical_router'], data['interface'].split('.')[0] , data['interface']];
+                postObject["logical-interface"]["parent_type"] = "physical-interface";
+                postObject["logical-interface"]["parent_uuid"] = data['piUuid'];
+                postObject["logical-interface"]["name"] = data['interface'];  
+                postObject["logical-interface"]["logical_interface_vlan_tag"] = 0;
+                postObject["logical-interface"] ['virtual_machine_interface_refs'] = [];
+                postObject["logical-interface"]["logical_interface_type"] = 'l2';
+                postObject["logical-interface"]["uuid"] = data['liUuid'];
+                
+                
+                ajaxConfig.type = "PUT";
+                ajaxConfig.data = JSON.stringify(postObject);
+                ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACE + pRouterUUID + '/Logical' + '/' + data['liUuid'];
+                console.log(ajaxConfig);
+                // Update the VMI ref to the logical interface
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    self.deleteVMI(data, {
+                        init: function () {
+                            callbackObj.init();
+                        },
+                        success: function (response) {
+                            var postData = {};
+//                          TODO use this with ip postObj = {"vnUUID": data['vnUUID'], "fixedIPs":[details['ip_address']], "macAddress":data['macAddress']};
+                            postData = {"vnUUID": data['newVNUuid'], "macAddress":data['mac']};
+                          // create the new VMI with the new VN
+                            self.createVMI(postData,{
+                                init: function () {
+                                    
+                                },
+                                success: function (response) {
+                                    var vmiDetails = response['virtual-machine-interface']['fq_name'];
+                                    data['vmiUuid'] = vmiDetails[2];
+                                    data['vmiDetails'] = vmiDetails;
+                                    // create the VM associated to the VMI
+                                    self.createVM(vmiDetails[2],{
+                                        init: function(){
+                                            
+                                        },
+                                        success: function (response){
+                                            // Get the current logical interface data
+//                                                                    ajaxConfig.type = "GET";
+//                                                                    ajaxConfig.data = JSON.stringify(postObject);
+//                                                                    ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical' + '/' + response.uuid;
+//                                                                    contrail.ajaxHandler(ajaxConfig, function () {
+//                                                                        //Init
+//                                                                    }, function (response) {
+                                                console.log(response);
+                                                var ajaxConfig = response;
+                                                var postObj = {};
+                                                var vmiDetails = data['vmiDetails'];
+                                                postObject["logical-interface"] = {};
+                                                postObject["logical-interface"]["fq_name"] = ["default-global-system-config", data['physical_router'], data['interface'].split('.')[0] , data['interface']];
+                                                postObject["logical-interface"]["parent_type"] = "physical-interface";
+                                                postObject["logical-interface"]["parent_uuid"] = data['piUuid'];
+                                                postObject["logical-interface"]["name"] = data['interface'];  
+                                                postObject["logical-interface"]["logical_interface_vlan_tag"] = 0;
+                                                postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiDetails[0], vmiDetails[1], vmiDetails[2]]}];
+                                                postObject["logical-interface"]["logical_interface_type"] = 'l2';
+                                                postObject["logical-interface"]["uuid"] = data['liUuid'];
+                                                
+                                                ajaxConfig.type = "PUT";
+                                                ajaxConfig.data = JSON.stringify(postObject);
+                                                ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACE + pRouterUUID + '/Logical' + '/' + data['liUuid'];
+                                                console.log(ajaxConfig);
+                                                // Update the VMI ref to the logical interface
+                                                contrail.ajaxHandler(ajaxConfig, function () {
+                                                    if (contrail.checkIfFunction(callbackObj.init)) {
+                                                        callbackObj.init();
+                                                    }
+                                                }, function (response) {
+                                                    console.log(response);
+                                                    if (contrail.checkIfFunction(callbackObj.success)) {
+                                                        callbackObj.success(response);
+                                                    }
+                                                }, function (error) {
+                                                    console.log(error);
+                                                    if (contrail.checkIfFunction(callbackObj.error)) {
+                                                        callbackObj.error(error);
+                                                    }
+                                                });//createLogicalInterface
+                                            
+//                                                                    }, function (error) {
+//                                                                        //error
+//                                                                    });//getLogicalInterface
+                                        },
+                                        error: function(error){
+                                            
+                                        }
+                                    });//createVM
+                                },
+                                error: function (error) {
+                                }
+                            
+                            });//createVMI
+                        },
+                        error: function (error) {
+                            callbackObj.error(error);
+                        }
+                    });//deleteVMI
+                }, function (error) {
+                    console.log(error);
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                });//SetLogicalInterface VMI to null
+            });
+        },
         
         deleteBaremetal: function (selectedBaremetal, callbackObj) {
             var ajaxConfig = {};
             //Fetch the pRouter UUID through name
             var deferredObj = $.Deferred();
-            fetchPRouterUUIDFromName(selectedBaremetal['pRouter'],deferredObj);
-            deferredObj.done(function(response){
-                console.log(response);
-                
-                if(response != null && response['physical-routers'] != null){
-                    var pRouterUUID;
-                    $.each(response['physical-routers'],function(i,pr){
-                       if(pr['fq_name'][1] == pRouter){
-                           pRouterUUID = pr['uuid'];
-                       } 
-                    });
+            var self = this;
+            this.fetchPRouterUUIDFromName(selectedBaremetal['physical_router'],deferredObj);
+            deferredObj.done(function(pRouterUUID){
+                if(pRouterUUID != null){
                     //First delete the Logical Interface
                     ajaxConfig.type = "DELETE";
-                    ajaxConfig.data = JSON.stringify(postObj);
-                    ajaxConfig.url = '/api/tenants/config/physical-interface/' + prouterUUID + '/' + sel_row_data['type'] + '/' + selectedBaremetal['liUuid'];
+                    ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACE + pRouterUUID + '/Logical/' + selectedBaremetal['liUuid'];
                     console.log(ajaxConfig);
                     contrail.ajaxHandler(ajaxConfig, function () {
                         if (contrail.checkIfFunction(callbackObj.init)) {
                             callbackObj.init();
                         }
                     }, function (response) {
-                        this.deleteVMI(selectedBaremetal, callBackObj);
+                        self.deleteVMI(selectedBaremetal, callbackObj);
                     }, function (error) {
                         console.log(error);
                         if (contrail.checkIfFunction(callbackObj.error)) {
@@ -191,15 +391,15 @@ define([
                         }
                     });
                 } else {
-                    //NO PRouters not found
+                    callbackObj.error({responseText : "No pRouter with the name found"});
                 }
             });
         },
         
-        deleteVMI : function (selectedBaremetal, callBackObj) {
+        deleteVMI : function (selectedBaremetal, callbackObj) {
             var ajaxConfig = {};
-            ajaxConfig.type = "GET";
-            ajaxConfig.url = '/api/tenants/config/delete-port/' + selectedBaremetal['vmUuid'];
+            ajaxConfig.type = "DELETE";
+            ajaxConfig.url = smwc.URL_DELETE_PORT + selectedBaremetal['vmiUuid'];
             console.log(ajaxConfig);
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
@@ -222,20 +422,38 @@ define([
             var ajaxConfig = {};
           //Get the prouter details
             ajaxConfig.type = "GET";
-            ajaxConfig.url = '/api/tenants/config/physical-routers-list';
+            ajaxConfig.url = smwc.URL_PHYSICAL_ROUTERS_LIST;
             contrail.ajaxHandler(ajaxConfig, function () {
             }, function (response) {
-                deferredObj.resolve(response);
+                var pRouterUUID;
+                if(response != null && response['physical-routers'] != null){
+                    $.each(response['physical-routers'],function(i,pr){
+                       if(pr['fq_name'][1] == pRouter){
+                           pRouterUUID = pr['uuid'];
+                       } 
+                    });
+                }
+                deferredObj.resolve(pRouterUUID);
             }, function (error) {
-                deferredObj.fail(response);
+                deferredObj.fail(error);
             }); 
         },
         
         validations: {
-            configureBaremetalValidation: {
-                'package_image_id': {
+            reimageValidation: {
+                'base_image_id': {
                     required: true,
-                    msg: smwm.getRequiredMessage('package_image_id')
+                    msg: smwm.getRequiredMessage('base_image_id')
+                },
+                'network.management_interface': {
+                    required: true,
+                    msg: smwm.getRequiredMessage('management_interface')
+                }
+            },
+            configureBaremetalValidation: {
+                'base_image_id': {
+                    required: true,
+                    msg: smwm.getRequiredMessage('base_image_id')
                 },
                 'baremetal_interface': {
                     required: true,

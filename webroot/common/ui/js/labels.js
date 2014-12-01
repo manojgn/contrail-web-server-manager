@@ -212,9 +212,13 @@ define([
         this.TITLE_BAREMETAL_SERVERS = 'Baremetal Servers';
         this.TITLE_BAREMETAL_SERVER = 'Baremetal Server';
         this.TITLE_ADD_BAREMETAL_SERVER = 'Add Baremetal Servers';
+        this.TITLE_EDIT_BAREMETAL_SERVER = 'Edit Baremetal Server';
+        this.TITLE_EDIT_BAREMETAL_VN = 'Edit VN';
         this.TITLE_SELECT_BAREMETAL_SERVER = 'Select Baremetal Server';
-        this.TITLE_SELECT_INTERFACE = 'Select Interface'
+        this.TITLE_SELECT_INTERFACE = 'Select Interface';
+        this.TITLE_BAREMETAL_INTERFACES = 'Baremetal Interfaces';
         this.TITLE_SELECT_IMAGE = 'Select Image';
+        this.TITLE_FILTER_BAREMETALS = 'Filtered Baremetal Servers'; 
 
         this.TITLE_SAVE_NEXT = 'Save &amp; Next';
         this.TITLE_NEXT = 'Next';

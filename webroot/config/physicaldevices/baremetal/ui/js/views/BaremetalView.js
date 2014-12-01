@@ -66,6 +66,18 @@ define([
         },
     });
     var rowActionConfig = [
+        smwgc.getConfigureAction(function (rowIndex) {
+            var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
+                baremetalModel = new BaremetalModel(dataItem),
+                checkedRow = [dataItem],
+                title = smwl.TITLE_EDIT_CONFIG + ' ('+ dataItem['id'] +')';
+        
+            baremetalEditView.model = baremetalModel;
+            baremetalEditView.renderEditBaremetal({"title": title, checkedRows: checkedRow, callback: function () {
+                var dataView = $(gridElId).data("contrailGrid")._dataView;
+                dataView.refreshData();
+            }});
+        }),
         smwgc.getReimageAction(function (rowIndex) {
             var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
                 baremetalModel = new BaremetalModel(dataItem),
@@ -77,7 +89,18 @@ define([
                 var dataView = $(gridElId).data("contrailGrid")._dataView;
                 dataView.refreshData();
             }});
-        }, true)        
+        }, true),
+        smwgc.getDeleteAction(function (rowIndex) {
+            var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
+                baremetalModel = new BaremetalModel(dataItem),
+                checkedRow = dataItem,
+                title = smwl.TITLE_DEL_SERVER + ' ('+ dataItem['id'] +')';
+
+            baremetalEditView.model = baremetalModel;
+            baremetalEditView.renderDeleteBaremetal({"title": title, checkedRows: checkedRow, callback: function () {
+                loadFeature({p: smwc.URL_HASH_BM_SERVERS});
+            }});
+        }, true)
     ];    
     var headerActionConfig = [
           {
