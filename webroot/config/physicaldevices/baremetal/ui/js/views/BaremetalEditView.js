@@ -21,6 +21,7 @@ define([
                 that = this;
 
             smwu.createWizardModal({'modalId': modalId, 'className': 'modal-840', 'title': options['title'], 'body': editLayout, 'onSave': function () {
+                
             }, 'onCancel': function () {
                 Knockback.release(that.model, document.getElementById(modalId));
                 smwv.unbind(that);
@@ -31,12 +32,51 @@ define([
             smwu.renderView4Config($("#" + modalId).find("#bm-" + prefixId + "-form"), this.model, 
                     getAddBaremetalViewConfig(that.model, options['callback']), smwc.KEY_ADD_VALIDATION);
 
-            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CREATE_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
-            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_ASSIGN_ROLES, smwl.TITLE_SELECT_SERVERS]) + smwc.FORM_SUFFIX_ID, false);
+            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]) + smwc.FORM_SUFFIX_ID, 'some error');
+            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_SELECT_SERVERS]) + smwc.FORM_SUFFIX_ID, 'some error');
 
             Knockback.applyBindings(this.model, document.getElementById(modalId));
             smwv.bind(this);
         },
+        
+        renderEditBaremetal: function (options) {
+            var editLayout = editTemplate({prefixId: prefixId}),
+                that = this;
+
+            smwu.createModal({'modalId': modalId, 'className': 'modal-700', 'title': options['title'], 'body': editLayout, 'onSave': function () {
+                var newVN = $('#'+ smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_VN]) + '_dropdown').data('contrailDropdown').value();
+                var data = options['checkedRows'];
+                data[0]['newVNUuid'] = newVN;
+                that.model.editBaremetal(data,{
+                    init: function () {
+                        that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
+                        smwu.enableModalLoading(modalId);
+                    },
+                    success: function () {
+                        options['callback']();
+                        $("#" + modalId).modal('hide');
+                    },
+                    error: function (error) {
+                        smwu.disableModalLoading(modalId, function () {
+                            that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, error.responseText);
+                        });
+                    }
+                });
+                // TODO: Release binding on successful configure
+            }, 'onCancel': function () {
+                Knockback.release(that.model, document.getElementById(modalId));
+                smwv.unbind(that);
+                $("#" + modalId).modal('hide');
+            }});
+
+            smwu.renderView4Config($("#" + modalId).find("#bm-" + prefixId + "-form"), this.model, 
+                    getEditViewConfig(options['checkedRows']), "configureValidation");
+            this.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
+
+            Knockback.applyBindings(this.model, document.getElementById(modalId));
+            smwv.bind(this);
+        },
+        
         renderReimage: function (options) {
             var editLayout = editTemplate({prefixId: prefixId}),
                 that = this;
@@ -69,6 +109,40 @@ define([
 
             Knockback.applyBindings(this.model, document.getElementById(modalId));
             smwv.bind(this);
+        },
+        
+        renderDeleteBaremetal: function (options) {
+            var textTemplate = contrail.getTemplate4Id("bm-delete-server-template"),
+                elId = 'deleteBaremetal',
+                that = this,
+                checkedRows = options['checkedRows'],
+                serversToBeDeleted = {'serverId': [], 'elementId': elId};
+            serversToBeDeleted['serverId'].push(checkedRows['id']);
+
+            smwu.createModal({'modalId': modalId, 'className': 'modal-700', 'title': options['title'], 'btnName': 'Confirm', 'body': textTemplate(serversToBeDeleted), 'onSave': function () {
+                that.model.deleteBaremetal(options['checkedRows'], {
+                    init: function () {
+                        that.model.showErrorAttr(elId, false);
+                        smwu.enableModalLoading(modalId);
+                    },
+                    success: function () {
+                        options['callback']();
+                        $("#" + modalId).modal('hide');
+                    },
+                    error: function (error) {
+                        smwu.disableModalLoading(modalId, function () {
+                            that.model.showErrorAttr(elId, error.responseText);
+                        });
+                    }
+                });
+            }, 'onCancel': function () {
+                $("#" + modalId).modal('hide');
+            }});
+
+            this.model.showErrorAttr(elId, false);
+
+            Knockback.applyBindings(this.model, document.getElementById(modalId));
+            smwv.bind(this);
         }
     });
     
@@ -82,7 +156,7 @@ define([
                 {
                     columns: [
                         {
-                            elementId: 'select-baremetal-filtered-servers',
+                            elementId: smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS]),
                             view: "FormGridView",
                             viewConfig: {
                                 path: 'id',
@@ -106,7 +180,7 @@ define([
                     columns : [
 
                                {
-                                   elementId: 'baremetal-interfaces-grid',
+                                   elementId: smwu.formatElementId([prefixId, smwl.TITLE_SELECT_INTERFACE, smwl.TITLE_BAREMETAL_INTERFACES]),
                                    view: "FormDynamicGridView",
                                    viewConfig: {
                                        path: 'network.interfaces',
@@ -117,7 +191,7 @@ define([
                                                uniqueColumn: 'name',
                                                events: {
                                                    onUpdate: function () {
-                                                       /*var interfaces = $('#baremetal-interfaces-grid').data('contrailDynamicgrid')._grid.getData(),
+                                                       /*var interfaces = $('#baremetal_select_interface_baremetal_interfaces').data('contrailDynamicgrid')._grid.getData(),
                                                            managementInterfacePrevData = $('#management_interface_dropdown').data('contrailDropdown').getAllData(),
                                                            managementInterfaceData = [],
                                                            controlDataInterfacePrevData = $('#control_data_interface_dropdown').data('contrailDropdown').getAllData(),
@@ -170,7 +244,8 @@ define([
                                                        return (dc.type == 'bond');
                                                    },
                                                    initSetData: function (args, $contrailDropdown) {
-                                                       var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows()[0];
+                                                       var checkedRows =  $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS]))
+                                                                           .data('contrailGrid').getCheckedRows()[0];
                                                        var dummydata = smwc.DUMMY_DATA[0];
                                                        checkedRows['network'] = dummydata.network;
                                                        var interfaceData = [];
@@ -188,7 +263,7 @@ define([
                                                        placeholder: 'Select Interface',
                                                        dataTextField: "text",
                                                        dataValueField: "value",
-                                                       data: []
+                                                       data: [],
 //                                                       data : function(){
 //                                                           if($('#select-baremetal-filtered-servers').length > 0){
 //                                                               var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows();
@@ -206,6 +281,7 @@ define([
                                                    id: "vn", name: "Virtual Network", field: "vn", width: 250,
                                                    //defaultValue: 'physical',
                                                    editor: ContrailGrid.Editors.ContrailDropdown,
+                                                   formatter: ContrailGrid.Formatters.Text,
                                                    elementConfig: {
                                                        width: 'element',
                                                        placeholder: 'Select Network',
@@ -214,38 +290,11 @@ define([
                                                        dataSource : {
                                                            type : 'remote',
                                                            url : smwc.URL_NETWORKS,
-                                                           parse: function(result){
-                                                               var vnDataSrc = [{text : 'None', value : 'none'}];
-                                                               if(result != null && result['data'] != null && result['data'].length > 0) {
-                                                                   var vns =  result['data'];
-                                                                   for(var i = 0; i < vns.length; i++) {
-                                                                       var vn = vns[i]['virtual-network'];
-                                                                       var fqn = vn.fq_name;
-                                                                       var subnetStr = '';
-                                                                       if('network_ipam_refs' in vn) {
-                                                                           var ipamRefs = vn['network_ipam_refs'];
-                                                                           for(var j = 0; j < ipamRefs.length; j++) {
-                                                                               if('subnet' in ipamRefs[j]) {
-                                                                                   if(subnetStr === '') {
-                                                                                       subnetStr = ipamRefs[j].subnet.ipam_subnet;
-                                                                                   } else {
-                                                                                       subnetStr += ', ' + ipamRefs[j].subnet.ipam_subnet;
-                                                                                   }
-                                                                               }
-                                                                           }
-                                                                       }
-                                                                       var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
-                                                                       if(subnetStr != '') {
-                                                                           textVN += ' (' + subnetStr + ')';  
-                                                                       }
-                                                                       vnDataSrc.push({ text : textVN, value : vn.uuid});
-                                                                   }
-                                                               } else {
-                                                                   vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
-                                                               }
-                                                               return vnDataSrc;
-                                                           }
-                                                       }
+                                                           parse: parseVns
+                                                       },
+                                                       formatter:function(r,c,v,cd,dc) {
+                                                           return dc.text;
+                                                        },
                                                    }
                                                }
                                            ]
@@ -268,14 +317,14 @@ define([
                 {
                     columns: [
                         {
-                            elementId: 'package_image_id',
+                            elementId: 'base_image_id',
                             view: "FormDropdownView",
                             viewConfig : {
-                                path : 'package_image_id',
+                                path : 'base_image_id',
                                 class : "span6",
-                                dataBindValue : 'package_image_id',
+                                dataBindValue : 'base_image_id',
                                 elementConfig : {
-                                    placeholder : smwl.SELECT_PACKAGE,
+                                    placeholder : smwl.SELECT_IMAGE,
                                     dataTextField : "id",
                                     dataValueField : "id",
                                     dataSource : {
@@ -289,7 +338,7 @@ define([
                             }
                         },
                         {
-                            elementId: 'baremetal_reimage',
+                            elementId: 'reimage',
                             view: "FormCheckboxView",
                             viewConfig : {
                                 path : 'baremetal_reimage',
@@ -359,17 +408,17 @@ define([
             stepType: 'step',
             onInitRender: true,
             onNext: function (params) {
-                var checkedRows =  $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows();
+                var checkedRows =  $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS])).data('contrailGrid').getCheckedRows();
                 if(checkedRows.length == 0){
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]) + smwc.FORM_SUFFIX_ID, false);
+                    baremetalModel.showErrorAttr('baremetal_select_baremetal_server','Error server');
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID, 'Please select only one server');
                     return false
-                } else if(checkedRows > 1){
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]) + smwc.FORM_SUFFIX_ID, false);
+                } else if(checkedRows.length > 1){
+                    baremetalModel.showErrorAttr('baremetal_select_baremetal_server','Error server');
+//                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID, 'Please select only one server');
                     return false;
                 } else {
-                    baremetalModel.selectedServer = checkedRows[0];
-                    var interfacedd = $('#baremetal_interface').data('contrailDropdown');
-//                    interfacedd.setData
+                    baremetalModel.selectedServer = checkedRows[0]
                 }
                 return true;
             },
@@ -395,15 +444,32 @@ define([
                 stepType: 'step',
                 onInitRender: true,
                 onNext: function (params) {
-                    var interfaceMappings = $('#baremetal-interfaces-grid').data('contrailDynamicgrid')._grid.getData();
-                    var selectedServer = $('#select-baremetal-filtered-servers').data('contrailGrid').getCheckedRows()[0];
-                    $.each(interfaceMappings,function(i,interfaceMapping){
-                        var mac = interfaceMapping['interface'];
-                        var vnUUID = interfaceMapping['vn'];
-                        var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
-                        var data = {"vnUUID": vnUUID, "macAddress":mac, moreDetails:moreDetails}; 
-                        configureBaremetal(data,params,baremetalModel);
-                    });
+                    var interfaceMappings = $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_INTERFACE , smwl.TITLE_BAREMETAL_INTERFACES]))
+                                                .data('contrailDynamicgrid')._grid.getData();
+                    var selectedServer = $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS]))
+                                                .data('contrailGrid').getCheckedRows()[0];
+//                    var serverAttrs = parms.model().attributes;
+//                    var selectedImage = $('#base_image_id').data('contrailDropdown').value();
+//                    var isReimage = $('#reimage').find('input').is(":checked");
+                    var serverManagementMac = selectedServer['mac_address'];
+                    if(!checkIfInterfaceRepeated(interfaceMappings)){
+                        $.each(interfaceMappings,function(i,interfaceMapping){
+                            var mac = interfaceMapping['interface'];
+                            var vnUUID = interfaceMapping['vn'];
+                            var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
+                            var data = {
+                                "vnUUID" : vnUUID,
+                                "macAddress" : mac,
+                                "mgmtMacAddress" : serverManagementMac,
+                                moreDetails : moreDetails,
+    //                            'base_image_id' : selectedImage,
+    //                            'isReimage' : isReimage
+                            }; 
+                            configureBaremetal(data,params,baremetalModel);
+                        });
+                    } else {
+                        baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]),'Error server');
+                    }
                 },
                 buttons: {
                     finish: {
@@ -419,6 +485,24 @@ define([
         addBaremetalViewConfig.viewConfig.steps = steps;
 
         return addBaremetalViewConfig;
+    }
+    
+    function checkIfInterfaceRepeated(interfaceMappings){
+        var isRepeated = false
+        for(i in interfaceMappings){
+            var found = interfaceMappings.some(function (el,j) {
+                if(i != j){
+                    return el.interface === interfaceMappings[i].interface;
+                } else {
+                    return false;
+                }
+              });
+            if(found){
+                isRepeated = true;
+                break;
+            }
+        };
+        return isRepeated;
     }
     
     function configureBaremetal(data,params,baremetalModel){
@@ -443,7 +527,6 @@ define([
         params.model.createVM(vmiDetails[2], {
             init: function () {
                 baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
-                smwu.enableModalLoading(modalId);
             },
             success: function () {
                 createLogicalInterface(data,vmiDetails,params,baremetalModel);
@@ -460,12 +543,16 @@ define([
         params.model.createLogicalInterface(data,vmiDetails, {
             init: function () {
                 baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
-                smwu.enableModalLoading(modalId);
             },
             success: function () {
                 smwu.disableModalLoading(modalId, function () {
-//                    callback();
                     $('#' + modalId).modal('hide');
+                    //reimage if it is specified
+//                    if(data['isReimage']){
+                        var reimageData = [{'mac':data['mgmtMacAddress']}];
+                        params.model.reimage(reimageData,{});
+//                    }
+                    loadFeature({p: smwc.URL_HASH_BM_SERVERS});
                 });
             },
             error: function (error) {
@@ -584,7 +671,22 @@ define([
                         {
                             elementId: 'base_image_id',
                             view: "FormDropdownView",
-                            viewConfig: {path: 'base_image_id', dataBindValue: 'base_image_id', class: "span6", elementConfig: {placeholder: smwl.SELECT_IMAGE, dataTextField: "id", dataValueField: "id", dataSource: {type: 'remote', url: smwu.getObjectDetailUrl(smwc.IMAGE_PREFIX_ID, 'filterInImages')}}}
+                            viewConfig : {
+                                path : 'base_image_id',
+                                dataBindValue : 'base_image_id',
+                                class : "span6",
+                                elementConfig : {
+                                    placeholder : smwl.SELECT_IMAGE,
+                                    dataTextField : "id",
+                                    dataValueField : "id",
+                                    dataSource : {
+                                        type : 'remote',
+                                        url : smwu.getObjectDetailUrl(
+                                                smwc.IMAGE_PREFIX_ID,
+                                                'filterInImages')
+                                    }
+                                }
+                            }
                         }
                     ]
                 }
@@ -592,9 +694,60 @@ define([
         }
     };
     
-    function removeAlreadyConfiguredBaremetals(result){
-        
+    
+    
+    function getEditViewConfig(checkedRows){
+        var selectedServer = checkedRows[0];
+        var editViewConfig = {
+                elementId: smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_SERVER]),
+                view: "SectionView",
+                viewConfig: {
+                    rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_VN]),
+                                    view: "FormDropdownView",
+                                    viewConfig:{
+                                        path : 'network.interfaces',
+                                        class : "span6",
+                                        dataBindValue : 'network.interfaces',
+                                       elementConfig: {
+                                           width: 'element',
+                                           placeholder: 'Select Network',
+                                           dataTextField: "text",
+                                           dataValueField: "value",
+//                                           TODO use this when its implemented in formdropdownview
+//                                           dataSource : {
+//                                               type : 'remote',
+//                                               url : smwc.URL_NETWORKS,
+//                                               parse: parseVns
+//                                           },
+                                           
+                                           data : [
+                                                   {text: 'vn2',value:'0051dda5-3d77-4991-b1b4-aef49bcbacb9'}
+                                           ],
+                                           formatter:function(r,c,v,cd,dc) {
+                                               return dc.text;
+                                            },
+                                       }
+                                    }
+                               }
+                            ]
+                        }
+                    ]
+                }
+            };
+        return editViewConfig;
     }
+    
+    function applyServerTagFilter(filteredServerGrid, event, ui) {
+        var checkedRows = $('#tagsCheckedMultiselect').data('contrailCheckedMultiselect').getChecked();
+        $(filteredServerGrid).data('contrailGrid')._dataView.setFilterArgs({
+            checkedRows: checkedRows
+        });
+        $(filteredServerGrid).data('contrailGrid')._dataView.setFilter(serverTagGridFilter);
+    };
     
     function formatData4Ajax(response) {
         var filterServerData = [];
@@ -608,6 +761,38 @@ define([
         });
         return filterServerData;
     };
+    
+    function parseVns (result){
+        var vnDataSrc = [{text : 'None', value : 'none'}];
+        if(result != null && result['data'] != null && result['data'].length > 0) {
+            var vns =  result['data'];
+            for(var i = 0; i < vns.length; i++) {
+                var vn = vns[i]['virtual-network'];
+                var fqn = vn.fq_name;
+                var subnetStr = '';
+                if('network_ipam_refs' in vn) {
+                    var ipamRefs = vn['network_ipam_refs'];
+                    for(var j = 0; j < ipamRefs.length; j++) {
+                        if('subnet' in ipamRefs[j]) {
+                            if(subnetStr === '') {
+                                subnetStr = ipamRefs[j].subnet.ipam_subnet;
+                            } else {
+                                subnetStr += ', ' + ipamRefs[j].subnet.ipam_subnet;
+                            }
+                        }
+                    }
+                }
+                var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
+                if(subnetStr != '') {
+                    textVN += ' (' + subnetStr + ')';  
+                }
+                vnDataSrc.push({ text : textVN, value : vn.uuid});
+            }
+        } else {
+            vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
+        }
+        return vnDataSrc;
+    }
     
     function updateSelectedServer(gridPrefix, method, serverList){
         var filteredServerGridElement = $('#' + gridPrefix + '-filtered-servers'),

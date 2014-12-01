@@ -79,11 +79,18 @@ define([
         this.URL_BAREMETAL_SERVER = '/api/tenants/config/baremetal-details';
         this.URL_BAREMETAL_ADD = '/api/tenants/config/baremetal';
         this.URL_NETWORKS = '/api/admin/config/get-data?type=virtual-network';
+        this.URL_PHYSICAL_INTERFACES = '/api/tenants/config/physical-interfaces/';
+        this.URL_PHYSICAL_INTERFACE = '/api/tenants/config/physical-interface/';
+        this.URL_DELETE_PORT = '/api/tenants/config/delete-port/';
+        this.URL_CREATE_PORT = '/api/tenants/config/create-port';
+        this.URL_PHYSICAL_ROUTERS_LIST = '/api/tenants/config/physical-routers-list';
+        this.URL_MAP_VIRTUAL_MACHINE_REFS = '/api/tenants/config/map-virtual-machine-refs/';
         this.CACHED_TAG_COLORS = {};
 
         this.URL_HASH_SM_CLUSTERS = 'setting_sm_clusters';
         this.URL_HASH_SM_SERVERS = 'setting_sm_servers';
-
+        this.URL_HASH_BM_SERVERS = 'config_pd_baremetal';
+        
         this.KEY_MODEL_ERRORS = 'errors';
         this.KEY_MODEL_LOCKS = 'locks';
         this.KEY_ELEMENT_ID = 'elementId';
@@ -141,7 +148,7 @@ define([
                             "dhcp" : null,
                             "type" : "physical",
                             "tor" : "pr1",
-                            "tor_port" : "ge-2/2/3"
+                            "tor_port" : "ge-2/2/2"
                         }, {
                             "member_interfaces" : [],
                             "name" : "eth1",
@@ -150,7 +157,7 @@ define([
                             "mac_address" : "0a:cf:e9:49:c8:32",
                             "dhcp" : null,
                             "type" : "physical",
-                            "tor" : "pr2",//physical router
+                            "tor" : "pr1",//physical router
                             "tor_port" : "ge-1/1/1"//physical interface
                         } ]
                     },
