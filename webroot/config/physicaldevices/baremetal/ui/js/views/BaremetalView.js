@@ -70,7 +70,7 @@ define([
             var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
                 baremetalModel = new BaremetalModel(dataItem),
                 checkedRow = [dataItem],
-                title = smwl.TITLE_EDIT_CONFIG + ' ('+ dataItem['id'] +')';
+                title = smwl.TITLE_EDIT_CONFIG;// + ' ('+ dataItem['id'] +')';
         
             baremetalEditView.model = baremetalModel;
             baremetalEditView.renderEditBaremetal({"title": title, checkedRows: checkedRow, callback: function () {
@@ -94,7 +94,7 @@ define([
             var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
                 baremetalModel = new BaremetalModel(dataItem),
                 checkedRow = dataItem,
-                title = smwl.TITLE_DEL_SERVER + ' ('+ dataItem['id'] +')';
+                title = smwl.TITLE_DEL_SERVER;// + ' ('+ dataItem['id'] +')';
 
             baremetalEditView.model = baremetalModel;
             baremetalEditView.renderDeleteBaremetal({"title": title, checkedRows: checkedRow, callback: function () {
