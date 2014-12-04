@@ -32,8 +32,9 @@ define([
             smwu.renderView4Config($("#" + modalId).find("#bm-" + prefixId + "-form"), this.model, 
                     getAddBaremetalViewConfig(that.model, options['callback']), smwc.KEY_ADD_VALIDATION);
 
-            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]) + smwc.FORM_SUFFIX_ID, 'some error');
-            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_SELECT_SERVERS]) + smwc.FORM_SUFFIX_ID, 'some error');
+            //this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER]) + smwc.FORM_SUFFIX_ID, false);
+            this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID, false);
+            //this.model.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_SELECT_SERVERS]) + smwc.FORM_SUFFIX_ID, 'some error');
 
             Knockback.applyBindings(this.model, document.getElementById(modalId));
             smwv.bind(this);
@@ -404,18 +405,16 @@ define([
             elementId: smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]),
             view: "AccordianView",
             viewConfig: selectServerViewConfig,
-            title: smwl.TITLE_SELECT_SERVER,
+            title: smwl.TITLE_CREATE,
             stepType: 'step',
             onInitRender: true,
             onNext: function (params) {
                 var checkedRows =  $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS])).data('contrailGrid').getCheckedRows();
                 if(checkedRows.length == 0){
-                    baremetalModel.showErrorAttr('baremetal_select_baremetal_server','Error server');
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID, 'Please select only one server');
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID,'Error server');
                     return false
                 } else if(checkedRows.length > 1){
-                    baremetalModel.showErrorAttr('baremetal_select_baremetal_server','Error server');
-//                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID, 'Please select only one server');
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_SELECT_SERVER]) + smwc.FORM_SUFFIX_ID,'Error server');
                     return false;
                 } else {
                     baremetalModel.selectedServer = checkedRows[0]
@@ -725,7 +724,7 @@ define([
 //                                           },
                                            
                                            data : [
-                                                   {text: 'vn2',value:'0051dda5-3d77-4991-b1b4-aef49bcbacb9'}
+                                                   {text: 'vn2',value:'1a4edcdb-3489-4faf-8044-468f7c021fc8'}
                                            ],
                                            formatter:function(r,c,v,cd,dc) {
                                                return dc.text;
