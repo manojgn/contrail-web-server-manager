@@ -40,14 +40,15 @@ define([
                 body: {
                     options: {
                         actionCell: rowActionConfig,
-                        checkboxSelectable: {
+                        /*checkboxSelectable: {
                             onNothingChecked: function (e) {
                                 $('#btnActionServers').addClass('disabled-link').removeAttr('data-toggle');
                             },
                             onSomethingChecked: function (e) {
                                 $('#btnActionServers').removeClass('disabled-link').attr('data-toggle', 'dropdown');
                             }
-                        },
+                        },*/
+                        checkboxSelectable : false,
                         detail: {
                             template: $('#' + smwc.TMPL_BAREMETAL_PAGE_DETAIL).html()
                         }                        
@@ -70,7 +71,7 @@ define([
             var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
                 baremetalModel = new BaremetalModel(dataItem),
                 checkedRow = [dataItem],
-                title = smwl.TITLE_EDIT_CONFIG;// + ' ('+ dataItem['id'] +')';
+                title = smwl.TITLE_EDIT_CONFIG;
         
             baremetalEditView.model = baremetalModel;
             baremetalEditView.renderEditBaremetal({"title": title, checkedRows: checkedRow, callback: function () {
@@ -94,7 +95,7 @@ define([
             var dataItem = $('#' + prefixId + smwc.RESULTS_SUFFIX_ID).data('contrailGrid')._dataView.getItem(rowIndex),
                 baremetalModel = new BaremetalModel(dataItem),
                 checkedRow = dataItem,
-                title = smwl.TITLE_DEL_SERVER;// + ' ('+ dataItem['id'] +')';
+                title = smwl.TITLE_DEL_SERVER;
 
             baremetalEditView.model = baremetalModel;
             baremetalEditView.renderDeleteBaremetal({"title": title, checkedRows: checkedRow, callback: function () {

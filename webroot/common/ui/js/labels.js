@@ -55,6 +55,7 @@ define([
             "ipmi_username": "IPMI Username",
             "ipmi_password": "IPMI Password",
             "base_image_id": "Default Image",
+            'baremetal_edit_vn' : 'Virtual Network',
             "reimaged_id": "Installed Image",
             "package_image_id": "Default Package",
             "provisioned_id": "Installed Package",
