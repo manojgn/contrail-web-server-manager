@@ -283,7 +283,12 @@ define([
         };
         
         this.getBaremetalServerColumns = function (baremetalServerColumnsType) {
-            var serverColumns = [
+            var serverColumns = 
+                [{   
+                   id:'serverId',
+                   field:'serverId',
+                   name:'Server'
+                },
                 {   
                    id:'mac',
                    field:'mac',
@@ -308,11 +313,6 @@ define([
                    id:'vn',
                    field:'vn',
                    name:'Virtual Network'
-                },
-                {   
-                   id:'vlan',
-                   field:'vlan',
-                   name:'Vlan'
                 }];
             return serverColumns;
         };
