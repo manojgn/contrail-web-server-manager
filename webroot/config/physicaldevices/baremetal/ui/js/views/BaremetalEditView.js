@@ -449,7 +449,7 @@ define([
                                                 .data('contrailGrid').getCheckedRows()[0];
 //                    var serverAttrs = parms.model().attributes;
 //                    var selectedImage = $('#base_image_id').data('contrailDropdown').value();
-//                    var isReimage = $('#reimage').find('input').is(":checked");
+                   var isReimage = $('#reimage').find('input').is(":checked");
                     var serverManagementMac = selectedServer['mac_address'];
                     if(!checkIfInterfaceRepeated(interfaceMappings)){
                         $.each(interfaceMappings,function(i,interfaceMapping){
@@ -461,8 +461,9 @@ define([
                                 "macAddress" : mac,
                                 "mgmtMacAddress" : serverManagementMac,
                                 moreDetails : moreDetails,
+                                "serverId" : selectedServer.id,
     //                            'base_image_id' : selectedImage,
-    //                            'isReimage' : isReimage
+                               'isReimage' : isReimage
                             }; 
                             configureBaremetal(data,params,baremetalModel);
                         });
@@ -523,7 +524,7 @@ define([
     }
     
     function createVM(vmiDetails,data,params,baremetalModel){
-        params.model.createVM(vmiDetails[2], {
+        params.model.createVM(vmiDetails[2], data.serverId,  {
             init: function () {
                 baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
             },
@@ -547,10 +548,10 @@ define([
                 smwu.disableModalLoading(modalId, function () {
                     $('#' + modalId).modal('hide');
                     //reimage if it is specified
-//                    if(data['isReimage']){
-                        var reimageData = [{'mac':data['mgmtMacAddress']}];
+                   if(data['isReimage']){
+                        var reimageData = [{'id':data['serverId']}];
                         params.model.reimage(reimageData,{});
-//                    }
+                   }
                     loadFeature({p: smwc.URL_HASH_BM_SERVERS});
                 });
             },

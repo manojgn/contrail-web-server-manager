@@ -49,10 +49,10 @@ define([
         },
         
         //Creates the dummy VM object
-        createVM: function (vmiId,callbackObj) {
+        createVM: function (vmiId, serverId, callbackObj) {
             var ajaxConfig = {};
             ajaxConfig.type = "GET";
-            ajaxConfig.url = smwc.URL_MAP_VIRTUAL_MACHINE_REFS + vmiId;
+            ajaxConfig.url = smwc.URL_MAP_VIRTUAL_MACHINE_REFS + vmiId + '/' + serverId;
             console.log(ajaxConfig);
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
@@ -445,10 +445,10 @@ define([
                     required: true,
                     msg: smwm.getRequiredMessage('base_image_id')
                 },
-                'network.management_interface': {
-                    required: true,
-                    msg: smwm.getRequiredMessage('management_interface')
-                }
+                // 'network.management_interface': {
+                    // required: true,
+                    // msg: smwm.getRequiredMessage('management_interface')
+                // }
             },
             configureBaremetalValidation: {
                 'base_image_id': {
@@ -473,7 +473,7 @@ define([
                     that = this;
 
                 for (var i = 0; i < checkedRows.length; i++) {
-                    servers.push({'mac_address': checkedRows[i]['mac'], 'base_image_id': serverAttrs['base_image_id']});
+                    servers.push({'id': checkedRows[i]['serverId'], 'base_image_id': serverAttrs['base_image_id']});
                 }
                 putData = servers;
                 ajaxConfig.type = "POST";

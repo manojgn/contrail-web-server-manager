@@ -160,8 +160,16 @@ function getVirtualMachineInterfaceDetails(request, response, appData, lInfObjAr
                                         var piUuid = lInterface['parent_uuid'];
                                         var vnUuid = lInterface['vmi_details'].vn_refs[0]['uuid'];
                                         var vmiUuid = lInterface['vmi_details'].vmi_fq_name[2];
+                                        var serverId = '';
+                                        var vmRef = lInterface['vmi_details'].vm_refs[0];
+                                        if(vmRef != null && vmRef.to[0] === vmRef.uuid) {
+                                            serverId = vmRef.uuid;
+                                        } else if(vmRef != null && vmRef.to[0] !== vmRef.uuid) {
+                                            serverId = vmRef.to[0];
+                                        }
                                         result.push({'mac' : mac, 'ip' : ip, 'physical_router' : pRouter, 'interface' : inf,
-                                            'vn' : vn, 'vlan' : vLan, 'liUuid' : liUuid, 'piUuid': piUuid, 'vnUuid': vnUuid, 'vmiUuid' : vmiUuid});
+                                            'vn' : vn, 'vlan' : vLan, 'liUuid' : liUuid, 'piUuid': piUuid, 'vnUuid': vnUuid, 'vmiUuid' : vmiUuid,
+                                            'serverId' : serverId});
                                     } 
                                 }    
                             }
