@@ -74,6 +74,7 @@
 							<rootDir>/common/ui</rootDir>
 							<js>sm.app.js</js>
 							<js>handlebars.helpers.js</js>
+                            <class>smLoader</class>
 						</resource>
 					</resources>
 					<items>
