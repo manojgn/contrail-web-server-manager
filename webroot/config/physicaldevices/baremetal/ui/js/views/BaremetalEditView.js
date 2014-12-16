@@ -12,6 +12,8 @@ define([
         editTemplate = contrail.getTemplate4Id(smwc.TMPL_BM_EDIT_FORM);
 
     var selectedBaremetal = null;
+    var vnsMap = {};
+    var intfsMap = {};
     
     var BaremetalEditView = Backbone.View.extend({
         modalElementId: '#' + modalId,
@@ -188,7 +190,7 @@ define([
                                        modelAttributePath: 'network.interfaces',
                                        elementConfig: {
                                            options: {
-                                               uniqueColumn: 'name',
+                                               uniqueColumn: 'interface',
                                                events: {
                                                    onUpdate: function () {
                                                        /*var interfaces = $('#baremetal_select_interface_baremetal_interfaces').data('contrailDynamicgrid')._grid.getData(),
@@ -228,14 +230,14 @@ define([
                                                }
                                            },
                                            columns: [
-                                                {
-                                                    id: "name", name: "Name", field: "name", width: 85,
-                                                    editor: ContrailGrid.Editors.Text,
-                                                    formatter: ContrailGrid.Formatters.Text,
-                                                    elementConfig: {
-                                                        placeholder: 'Dummy field'
-                                                    }
-                                                },
+//                                                {
+//                                                    id: "name", name: "Name", field: "name", width: 85,
+//                                                    editor: ContrailGrid.Editors.Text,
+//                                                    formatter: ContrailGrid.Formatters.Text,
+//                                                    elementConfig: {
+//                                                        placeholder: 'Dummy field'
+//                                                    }
+//                                                },
                                                {
                                                    id: "baremetal_interface", name: "Interface", field: "interface", width: 250,
                                                    //defaultValue: 'physical',
@@ -251,16 +253,18 @@ define([
                                                        var checkedRows =  $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS]))
                                                                            .data('contrailGrid').getCheckedRows()[0];
                                                        var dummydata = smwc.DUMMY_DATA[0];//TODO remove and use the original data from checked rows
-                                                       checkedRows['network'] = dummydata.network;
-                                                       var interfaceData = [];
-                                                       var interfaces = jsonPath(checkedRows,'$.network.interfaces')[0];
-                                                       if(interfaces){
-                                                           $.each(interfaces,function(i,intf){
-                                                               interfaceData.push({text:intf.name,value:intf.mac_address});
-                                                           });
+                                                       if(checkedRows != null){
+                                                           checkedRows['network'] = dummydata.network;
+                                                           var interfaceData = [];
+                                                           var interfaces = jsonPath(checkedRows,'$.network.interfaces')[0];
+                                                           if(interfaces){
+                                                               $.each(interfaces,function(i,intf){
+                                                                   interfaceData.push({text:intf.name,value:intf.name});
+                                                                   intfsMap[intf.name] = intf.mac_address;
+                                                               });
+                                                           }
+                                                           $contrailDropdown.setData(interfaceData)
                                                        }
-                                                       $contrailDropdown.setData(interfaceData)
-
                                                    },
                                                    elementConfig: {
                                                        width: 'element',
@@ -458,8 +462,8 @@ define([
                         baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'Please map atleast one interface');
                     } else if(!checkIfInterfaceRepeated(interfaceMappings)){
                         $.each(interfaceMappings,function(i,interfaceMapping){
-                            var mac = interfaceMapping['interface'];
-                            var vnUUID = interfaceMapping['vn'];
+                            var mac = intfsMap[interfaceMapping['interface']];
+                            var vnUUID = vnsMap[interfaceMapping['vn']];
                             var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
                             var data = {
                                 "vnUUID" : vnUUID,
@@ -791,7 +795,8 @@ define([
                 if(subnetStr != '') {
                     textVN += ' (' + subnetStr + ')';  
                 }
-                vnDataSrc.push({ text : textVN, value : vn.uuid});
+                vnDataSrc.push({ text : textVN, value : textVN});
+                vnsMap[textVN] = vn.uuid;//store in the map for using while saving
             }
         } else {
             vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
