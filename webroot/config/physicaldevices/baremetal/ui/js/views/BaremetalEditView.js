@@ -559,9 +559,20 @@ define([
                     //reimage if it is specified
                    if(data['isReimage']){
                         var reimageData = [{'serverId':data['serverId']}];
-                        params.model.reimage(reimageData,{});
+                        params.model.reimage(reimageData,{
+                            success:function(){
+                                loadFeature({p: smwc.URL_HASH_BM_SERVERS});
+                            },
+                            error:function(error){
+                                smwu.disableModalLoading(modalId, function () {
+                                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                                });
+//                                loadFeature({p: smwc.URL_HASH_BM_SERVERS});
+                            }
+                        });
+                   } else {
+                       loadFeature({p: smwc.URL_HASH_BM_SERVERS});
                    }
-                    loadFeature({p: smwc.URL_HASH_BM_SERVERS});
                 });
             },
             error: function (error) {
