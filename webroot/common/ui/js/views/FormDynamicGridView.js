@@ -91,7 +91,7 @@ define([
                     data.push(item);
                     thisGrid.updateRowCount();
                     thisGrid.render();
-                    thisGrid.gotoCell(data.length, 0, true);
+//                    thisGrid.gotoCell(data.length, 0, true);
                 } else {
                     thisGrid.invalidateRow(data.length);
                     thisGrid.render();
