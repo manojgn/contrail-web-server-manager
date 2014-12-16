@@ -558,7 +558,7 @@ define([
                     $('#' + modalId).modal('hide');
                     //reimage if it is specified
                    if(data['isReimage']){
-                        var reimageData = [{'id':data['serverId']}];
+                        var reimageData = [{'serverId':data['serverId']}];
                         params.model.reimage(reimageData,{});
                    }
                     loadFeature({p: smwc.URL_HASH_BM_SERVERS});
