@@ -41,36 +41,47 @@ define([
             $.each(columns, function (columnKey, columnValue) {
                 defaultDataItem[columnValue.field] = contrail.checkIfExist(columnValue.defaultValue) ? columnValue.defaultValue : null;
             });
-
-            columns.push({
-                id: 'icon-minus',
-                field: "",
-                name: '',
-                cssClass: '',
-                rerenderOnResize: false,
-                formatter: function (r, c, v, cd, dc) {
-                    return '<i class="row-remove icon-minus grey" data-row=' + r + '></i>'
-                },
-                width: 20,
-                maxWidth: 20,
-                resizable: false,
-                sortable: false
+            //TODO dirty fix added to avoid adding the plus and minus icon repeatedly on opening the modal multiple times
+            var iconMinusAdded = false;
+            var iconPlusAdded = false;
+            $.each(columns,function(i,d){
+                if(d.id == 'icon-minus')
+                    iconMinusAdded = true;
+                if(d.id == 'icon-plus')
+                    iconPlusAdded = true;
             });
-
-            columns.push({
-                id: 'icon-plus',
-                field: "",
-                name: '',
-                cssClass: '',
-                rerenderOnResize: false,
-                formatter: function (r, c, v, cd, dc) {
-                    return '<i class="row-add icon-plus grey" data-row=' + r + '></i>'
-                },
-                width: 20,
-                maxWidth: 20,
-                resizable: false,
-                sortable: false
-            });
+            if(!iconMinusAdded){
+                columns.push({
+                    id: 'icon-minus',
+                    field: "",
+                    name: '',
+                    cssClass: '',
+                    rerenderOnResize: false,
+                    formatter: function (r, c, v, cd, dc) {
+                        return '<i class="row-remove icon-minus grey" data-row=' + r + '></i>'
+                    },
+                    width: 20,
+                    maxWidth: 20,
+                    resizable: false,
+                    sortable: false
+                });
+            }
+            if(!iconPlusAdded){
+                columns.push({
+                    id: 'icon-plus',
+                    field: "",
+                    name: '',
+                    cssClass: '',
+                    rerenderOnResize: false,
+                    formatter: function (r, c, v, cd, dc) {
+                        return '<i class="row-add icon-plus grey" data-row=' + r + '></i>'
+                    },
+                    width: 20,
+                    maxWidth: 20,
+                    resizable: false,
+                    sortable: false
+                });
+            }
 
             options = $.extend(true, {}, defaultOptions, options);
 
