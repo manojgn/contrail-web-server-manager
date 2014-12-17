@@ -76,7 +76,9 @@ define([
                 'network': {
                     'management_interface': null,
                     'provisioning': "kickstart",
-                    'interfaces': []
+                    'interfaces': [],
+                    'tor':null,
+                    'tor_port':null
                 }
             };
         };

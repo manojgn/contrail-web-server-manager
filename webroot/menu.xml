@@ -34,7 +34,7 @@
 					<iconClass>icon-globe</iconClass>
 					<items>
 						<item>
-							<label>Baremetal</label>
+							<label>Baremetal Servers</label>
 							<hash>config_pd_baremetal</hash>
 							<resources>
 								<resource>

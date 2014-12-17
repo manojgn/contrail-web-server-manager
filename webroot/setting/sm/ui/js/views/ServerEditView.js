@@ -561,6 +561,22 @@ define([
                                                         dataValueField: "id",
                                                         data: []
                                                     }
+                                                },
+                                                {
+                                                    id: "tor", name: "TOR", field: "tor", width: 70,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: ContrailGrid.Formatters.Text,
+                                                    elementConfig: {
+                                                        placeholder: 'TOR'
+                                                    }
+                                                },
+                                                {
+                                                    id: "tor_port", name: "TOR Port", field: "tor_port", width: 70,
+                                                    editor: ContrailGrid.Editors.Text,
+                                                    formatter: ContrailGrid.Formatters.Text,
+                                                    elementConfig: {
+                                                        placeholder: 'TOR Port'
+                                                    }
                                                 }
                                             ]
                                         }

@@ -277,9 +277,9 @@ define([
                                                    initSetData: function (args, $contrailDropdown) {
                                                        var checkedRows =  $('#' + smwu.formatElementId([prefixId, smwl.TITLE_SELECT_BAREMETAL_SERVER, smwl.TITLE_FILTER_BAREMETALS]))
                                                                            .data('contrailGrid').getCheckedRows()[0];
-                                                       var dummydata = smwc.DUMMY_DATA[0];//TODO remove and use the original data from checked rows
+//                                                       var dummydata = smwc.DUMMY_DATA[0];//TODO remove and use the original data from checked rows
                                                        if(checkedRows != null){
-                                                           checkedRows['network'] = dummydata.network;
+//                                                           checkedRows['network'] = dummydata.network;
                                                            var interfaceData = [];
                                                            var interfaces = jsonPath(checkedRows,'$.network.interfaces')[0];
                                                            if(interfaces){
