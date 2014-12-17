@@ -152,6 +152,28 @@ define([
                 } 
             });
         },
+        //Gets the virtual networks
+        getVN: function (callbackObj) {
+            var ajaxConfig = {};
+            ajaxConfig.type = "GET";
+            ajaxConfig.url = smwc.URL_NETWORKS;
+            console.log(ajaxConfig);
+            contrail.ajaxHandler(ajaxConfig, function () {
+                if (contrail.checkIfFunction(callbackObj.init)) {
+                    callbackObj.init();
+                }
+            }, function (response) {
+                console.log(response);
+                if (contrail.checkIfFunction(callbackObj.success)) {
+                    callbackObj.success(response);
+                }
+            }, function (error) {
+                console.log(error);
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+            });
+        },        
         /**
          * 1. Delete the VMI
          * 2. Create the new VMI with the new VN
@@ -276,7 +298,7 @@ define([
                 }, function (response) {
                     self.deleteVMI(data, {
                         init: function () {
-                            callbackObj.init();
+                            //callbackObj.init();
                         },
                         success: function (response) {
                             var postData = {};
@@ -292,7 +314,7 @@ define([
                                     data['vmiUuid'] = vmiDetails[2];
                                     data['vmiDetails'] = vmiDetails;
                                     // create the VM associated to the VMI
-                                    self.createVM(vmiDetails[2],{
+                                    self.createVM(vmiDetails[2], data.serverId, {
                                         init: function(){
                                             
                                         },
@@ -325,7 +347,7 @@ define([
                                                 // Update the VMI ref to the logical interface
                                                 contrail.ajaxHandler(ajaxConfig, function () {
                                                     if (contrail.checkIfFunction(callbackObj.init)) {
-                                                        callbackObj.init();
+                                                        //callbackObj.init();
                                                     }
                                                 }, function (response) {
                                                     console.log(response);

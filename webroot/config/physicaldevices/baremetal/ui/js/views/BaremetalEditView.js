@@ -44,14 +44,14 @@ define([
         renderEditBaremetal: function (options) {
             var editLayout = editTemplate({prefixId: prefixId}),
                 that = this;
-
+            var data = options['checkedRows'];
             smwu.createModal({'modalId': modalId, 'className': 'modal-700', 'title': options['title'], 'body': editLayout, 'onSave': function () {
-                var newVN = $('#'+ smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_VN]) + '_dropdown').data('contrailDropdown').value();
-                var data = options['checkedRows'];
+                var vnTxt = $('#'+ smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_VN]) + '_dropdown').data('contrailDropdown').value();
+                var newVN = vnsMap[vnTxt];
                 data[0]['newVNUuid'] = newVN;
                 that.model.editBaremetal(data,{
                     init: function () {
-                        that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
+                        that.model.showErrorAttr(prefixId + smwc.TITLE_EDIT_CONFIG, false);
                         smwu.enableModalLoading(modalId);
                     },
                     success: function () {
@@ -60,7 +60,7 @@ define([
                     },
                     error: function (error) {
                         smwu.disableModalLoading(modalId, function () {
-                            that.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, error.responseText);
+                            that.model.showErrorAttr(prefixId + smwc.TITLE_EDIT_CONFIG, error.responseText);
                         });
                     }
                 });
@@ -73,8 +73,33 @@ define([
 
             smwu.renderView4Config($("#" + modalId).find("#bm-" + prefixId + "-form"), this.model, 
                     getEditViewConfig(options['checkedRows']), "configureValidation");
+            //TODO: As a workaround doing get vn sepearatly for edit        
+            that.model.getVN({
+                init : function() {
+                    that.model.showErrorAttr(prefixId + smwc.TITLE_EDIT_CONFIG, false);
+                    //smwu.enableModalLoading(modalId);
+                },
+                success: function(res) {
+                    var formattedData = parseVns(res);
+                    var vnDropdown = $('#'+ smwu.formatElementId([prefixId, smwl.TITLE_EDIT_BAREMETAL_VN]) + '_dropdown').data('contrailDropdown');
+                    vnDropdown.setData(formattedData);
+                    var selText = '';
+                    for(var i =0; i < formattedData.length; i++) {
+                        if(formattedData[i].key === data[0].vnUuid) {
+                            selText = formattedData[i].text;
+                            break;
+                        }
+                    }
+                    vnDropdown.value(selText);
+                },
+                error: function(error) {
+                    smwu.disableModalLoading(modalId, function () {
+                        that.model.showErrorAttr(prefixId + smwc.TITLE_EDIT_CONFIG, error.responseText);
+                    });
+                }
+            })        
             this.model.showErrorAttr(prefixId + smwc.FORM_SUFFIX_ID, false);
-
+            
             Knockback.applyBindings(this.model, document.getElementById(modalId));
             smwv.bind(this);
         },
@@ -749,7 +774,7 @@ define([
                                            ],
                                            formatter:function(r,c,v,cd,dc) {
                                                return dc.text;
-                                            },
+                                            }
                                        }
                                     }
                                }
@@ -783,7 +808,7 @@ define([
     };
     
     function parseVns (result){
-        var vnDataSrc = [{text : 'None', value : 'none'}];
+        var vnDataSrc = [];//[{text : 'None', value : 'none'}];
         if(result != null && result['data'] != null && result['data'].length > 0) {
             var vns =  result['data'];
             for(var i = 0; i < vns.length; i++) {
@@ -806,7 +831,7 @@ define([
                 if(subnetStr != '') {
                     textVN += ' (' + subnetStr + ')';  
                 }
-                vnDataSrc.push({ text : textVN, value : textVN});
+                vnDataSrc.push({ text : textVN, value : textVN, key : vn.uuid});
                 vnsMap[textVN] = vn.uuid;//store in the map for using while saving
             }
         } else {
