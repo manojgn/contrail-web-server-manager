@@ -517,7 +517,7 @@ define([
     function configureBaremetal(data,params,baremetalModel){
         params.model.createVMI(data, {
             init: function () {
-                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, false);
                 smwu.enableModalLoading(modalId);
             },
             success: function (response) {
@@ -526,7 +526,7 @@ define([
             },
             error: function (error) {
                 smwu.disableModalLoading(modalId, function () {
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, error.responseText);
                 });
             }
         });
@@ -535,14 +535,14 @@ define([
     function createVM(vmiDetails,data,params,baremetalModel){
         params.model.createVM(vmiDetails[2], data.serverId,  {
             init: function () {
-                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, false);
             },
             success: function () {
                 createLogicalInterface(data,vmiDetails,params,baremetalModel);
             },
             error: function (error) {
                 smwu.disableModalLoading(modalId, function () {
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, error.responseText);
                 });
             }
         });
@@ -551,7 +551,7 @@ define([
     function createLogicalInterface(data,vmiDetails,params,baremetalModel){
         params.model.createLogicalInterface(data,vmiDetails, {
             init: function () {
-                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, false);
+                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, false);
             },
             success: function () {
                 smwu.disableModalLoading(modalId, function () {
@@ -565,7 +565,7 @@ define([
                             },
                             error:function(error){
                                 smwu.disableModalLoading(modalId, function () {
-                                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, error.responseText);
                                 });
 //                                loadFeature({p: smwc.URL_HASH_BM_SERVERS});
                             }
@@ -577,7 +577,7 @@ define([
             },
             error: function (error) {
                 smwu.disableModalLoading(modalId, function () {
-                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_EDIT_CONFIG]) + smwc.FORM_SUFFIX_ID, error.responseText);
+                    baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID, error.responseText);
                 });
             }
         });
