@@ -490,10 +490,21 @@ define([
                             var mac = intfsMap[interfaceMapping['interface']];
                             var subNet = '';
                             var subNetArry = interfaceMapping['vn'].split(' ');
-                            if(subNetArry.length > 0 && subNetArry[2] != undefined) {
-                                  subNet = subNetArry[2].replace('(', '').replace(')', '');
+                            var isIPinRange = true;
+                            if(subNetArry.length > 2) {
+                                  for(var i = 2; i < subNetArry.length; i++) {
+                                      if(subNetArry[i] != undefined) {
+                                          subNet = subNetArry[i].replace('(', '').replace(')', '').replace(',','');
+                                          if(isIPBoundToRange(subNet.trim(), selectedServer.ip_address.trim())){
+                                              isIPinRange = true;
+                                              break
+                                          } else {
+                                              isIPinRange = false;
+                                          }
+                                      }
+                                  }
                             }
-                            if(!isIPBoundToRange(subNet.trim(), selectedServer.ip_address.trim())) {
+                            if(!isIPinRange) {
                                 baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'IP address is not in the CIDR range');
                                 return;
                             }
