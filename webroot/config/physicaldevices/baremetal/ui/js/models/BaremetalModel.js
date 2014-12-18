@@ -19,12 +19,60 @@ define([
             var ajaxConfig = {};
             var details = data['moreDetails'];
 //            if (this.model().isValid(true, 'configureBaremetalValidation')) {
-                var postObj = {};
-//               TODO use this with ip postObj = {"vnUUID": data['vnUUID'], "fixedIPs":[details['ip_address']], "macAddress":data['macAddress']};
-                postObj = {"vnUUID": data['vnUUID'], "macAddress":data['macAddress']};
+               /* var postObj = {};
+                postObj = {"vnUUID": data['vnUUID'], "fixedIPs":[details['ip_address']], "macAddress":data['macAddress']};
                 ajaxConfig.type = "POST";
                 ajaxConfig.data = JSON.stringify(postObj);
                 ajaxConfig.url = smwc.URL_CREATE_PORT;
+                */
+            var vnData = JSON.parse(data['vnData']);
+            var curDomain = getCookie('domain');
+            var curProject = getCookie('project');
+            
+            var nwIpamRefs = vnData['network_ipam_refs'];
+            var subnetUUID;
+            for(var i = 0 ; i < nwIpamRefs.length; i++){
+                if(isIPBoundToRange(nwIpamRefs[i]['subnet']['ipam_subnet'], details['ip_address'].trim())){
+                    subnetUUID = nwIpamRefs[i]['subnet']['subnet_uuid'];
+                    break;
+                }
+            }
+            
+            var postObj = {
+                    "virtual-machine-interface": {
+                        "parent_type": "project",
+                        "fq_name": [
+                            curDomain,
+                            curProject
+                        ],
+                        "virtual_network_refs": [
+                            {
+                                "to": vnData['fq_name']
+                            }
+                        ],
+                        "virtual_machine_interface_mac_addresses": {
+                            "mac_address": [
+                                data['macAddress']
+                            ]
+                        },
+                        "instance_ip_back_refs": [
+                            {
+                                "instance_ip_address": [
+                                    {
+                                        "fixedIp": details['ip_address'],
+                                        "domain": curDomain,
+                                        "project": curProject
+                                    }
+                                ],
+                                "subnet_uuid": subnetUUID
+                            }
+                        ]
+                    }
+                };
+                ajaxConfig.type = "POST";
+                ajaxConfig.data = JSON.stringify(postObj);
+                ajaxConfig.url = smwc.URL_PORTS;
+                
                 console.log(ajaxConfig);
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
@@ -421,12 +469,10 @@ define([
         deleteVMI : function (selectedBaremetal, callbackObj) {
             var ajaxConfig = {};
             ajaxConfig.type = "DELETE";
-            ajaxConfig.url = smwc.URL_DELETE_PORT + selectedBaremetal['vmiUuid'];
+            ajaxConfig.url = smwc.URL_PORTS + '/' + selectedBaremetal['vmiUuid'];
             console.log(ajaxConfig);
             contrail.ajaxHandler(ajaxConfig, function () {
-                if (contrail.checkIfFunction(callbackObj.init)) {
-                    callbackObj.init();
-                }
+                
             }, function (response) {
                 console.log(response);
                 if (contrail.checkIfFunction(callbackObj.success)) {

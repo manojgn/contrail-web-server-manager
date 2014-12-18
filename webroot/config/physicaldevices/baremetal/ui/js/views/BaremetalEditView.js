@@ -311,7 +311,7 @@ define([
 
                                                },
                                                {
-                                                   id: "vn", name: "Virtual Network", field: "vn", width: 250,
+                                                   id: "vn", name: "Virtual Network", field: "vn", width: 475,
                                                    //defaultValue: 'physical',
                                                    editor: ContrailGrid.Editors.ContrailDropdown,
                                                    formatter: ContrailGrid.Formatters.Text,
@@ -508,10 +508,11 @@ define([
                                 baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'IP address is not in the CIDR range');
                                 return;
                             }
-                            var vnUUID = vnsMap[interfaceMapping['vn']];
+                            var vnData = vnsMap[interfaceMapping['vn']];
                             var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
                             var data = {
-                                "vnUUID" : vnUUID,
+                                "vnData" : vnData,
+                                'vnText' : interfaceMapping['vn'],
                                 "macAddress" : mac,
                                 "mgmtMacAddress" : serverManagementMac,
                                 moreDetails : moreDetails,
@@ -851,8 +852,8 @@ define([
                 if(subnetStr != '') {
                     textVN += ' (' + subnetStr + ')';  
                 }
-                vnDataSrc.push({ text : textVN, value : textVN, key : vn.uuid});
-                vnsMap[textVN] = vn.uuid;//store in the map for using while saving
+                vnDataSrc.push({ text : textVN, value : textVN, key : vn.uuid, vnData : JSON.stringify(vn)});
+                vnsMap[textVN] = JSON.stringify(vn);//store in the map for using while saving
             }
         } else {
             vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
