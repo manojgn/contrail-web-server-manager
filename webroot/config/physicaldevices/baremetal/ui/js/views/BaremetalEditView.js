@@ -488,6 +488,15 @@ define([
                     } else if(!checkIfInterfaceRepeated(interfaceMappings)){
                         $.each(interfaceMappings,function(i,interfaceMapping){
                             var mac = intfsMap[interfaceMapping['interface']];
+                            var subNet = '';
+                            var subNetArry = interfaceMapping['vn'].split(' ');
+                            if(subNetArry.length > 0 && subNetArry[2] != undefined) {
+                                  subNet = subNetArry[2].replace('(', '').replace(')', '');
+                            }
+                            if(!isIPBoundToRange(subNet.trim(), selectedServer.ip_address.trim())) {
+                                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'IP address is not in the CIDR range');
+                                return;
+                            }
                             var vnUUID = vnsMap[interfaceMapping['vn']];
                             var moreDetails = getMoreDetailsForInterface(selectedServer['network']['interfaces'], mac);
                             var data = {
