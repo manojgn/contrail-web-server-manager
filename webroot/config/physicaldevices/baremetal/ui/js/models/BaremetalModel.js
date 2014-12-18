@@ -463,10 +463,10 @@ define([
         
         validations: {
             reimageValidation: {
-                // 'base_image_id': {
-                    // required: true,
-                    // msg: smwm.getRequiredMessage('base_image_id')
-                // },
+                'base_image_id': {
+                    required: true,
+                    msg: smwm.getRequiredMessage('base_image_id')
+                }
                 // 'network.management_interface': {
                     // required: true,
                     // msg: smwm.getRequiredMessage('management_interface')
@@ -495,7 +495,7 @@ define([
                     that = this;
 
                 for (var i = 0; i < checkedRows.length; i++) {
-                    servers.push({'id': checkedRows[i]['serverId'], 'base_image_id': 'ubuntuiso'});//serverAttrs['base_image_id']});
+                    servers.push({'id': checkedRows[i]['serverId'], 'base_image_id': serverAttrs['base_image_id']});
                 }
                 putData = servers;
                 ajaxConfig.type = "POST";
