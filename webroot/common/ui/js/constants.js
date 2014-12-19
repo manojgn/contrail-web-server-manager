@@ -84,6 +84,7 @@ define([
         this.URL_DELETE_PORT = '/api/tenants/config/delete-port/';
         this.URL_CREATE_PORT = '/api/tenants/config/create-port';
         this.URL_PORTS = '/api/tenants/config/ports';
+        this.URL_VM = '/api/tenants/config/li-virtual-machine';
         this.URL_PHYSICAL_ROUTERS_LIST = '/api/tenants/config/physical-routers-list';
         this.URL_MAP_VIRTUAL_MACHINE_REFS = '/api/tenants/config/map-virtual-machine-refs/';
         this.CACHED_TAG_COLORS = {};

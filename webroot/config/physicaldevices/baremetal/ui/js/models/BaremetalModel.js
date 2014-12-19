@@ -468,15 +468,33 @@ define([
         
         deleteVMI : function (selectedBaremetal, callbackObj) {
             var ajaxConfig = {};
+            var self = this;
             ajaxConfig.type = "DELETE";
             ajaxConfig.url = smwc.URL_PORTS + '/' + selectedBaremetal['vmiUuid'];
             console.log(ajaxConfig);
             contrail.ajaxHandler(ajaxConfig, function () {
                 
             }, function (response) {
+                self.deleteVM(selectedBaremetal, callbackObj);
+            }, function (error) {
+                console.log(error);
+                if (contrail.checkIfFunction(callbackObj.error)) {
+                    callbackObj.error(error);
+                }
+            });
+        },
+        
+        deleteVM : function (selectedBaremetal, callbackObj) {
+            var ajaxConfig = {};
+            ajaxConfig.type = "DELETE";
+            ajaxConfig.url = smwc.URL_VM + '/' + selectedBaremetal['vmUuid'];
+            console.log(ajaxConfig);
+            contrail.ajaxHandler(ajaxConfig, function () {
+                
+            }, function (response) {
                 console.log(response);
                 if (contrail.checkIfFunction(callbackObj.success)) {
-                    callbackObj.success(response);
+                    callbackObj.success();
                 }
             }, function (error) {
                 console.log(error);
