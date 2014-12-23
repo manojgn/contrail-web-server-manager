@@ -482,7 +482,8 @@ define([
 //                    var serverAttrs = parms.model().attributes;
 //                    var selectedImage = $('#base_image_id').data('contrailDropdown').value();
                    var isReimage = $('#reimage').find('input').is(":checked");
-                    var serverManagementMac = selectedServer['mac_address'];
+                   var serverManagementMac = selectedServer['mac_address'];
+                   var ip = selectedServer.ip_address.trim();
                     if(interfaceMappings.length == 0){
                         baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'Please map atleast one interface');
                     } else if(!checkIfInterfaceRepeated(interfaceMappings)){
@@ -495,7 +496,7 @@ define([
                                   for(var i = 2; i < subNetArry.length; i++) {
                                       if(subNetArry[i] != undefined) {
                                           subNet = subNetArry[i].replace('(', '').replace(')', '').replace(',','');
-                                          if(isIPBoundToRange(subNet.trim(), selectedServer.ip_address.trim())){
+                                          if(isIPBoundToRange(subNet.trim(), ip)){
                                               isIPinRange = true;
                                               break
                                           } else {
@@ -505,7 +506,7 @@ define([
                                   }
                             }
                             if(!isIPinRange) {
-                                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'IP address is not in the CIDR range');
+                                baremetalModel.showErrorAttr(smwu.formatElementId([prefixId, smwl.TITLE_CONFIGURE_SERVER]) + smwc.FORM_SUFFIX_ID,'IP ' + ip + ' is not in the CIDR ' + subNet);
                                 return;
                             }
                             var vnData = vnsMap[interfaceMapping['vn']];

@@ -502,7 +502,10 @@ define([
             contrail.ajaxHandler(ajaxConfig, function () {
                 
             }, function (response) {
-                self.deleteVM(selectedBaremetal, callbackObj);
+                //self.deleteVM(selectedBaremetal, callbackObj);
+                if (contrail.checkIfFunction(callbackObj.success)) {
+                    callbackObj.success();
+                }
             }, function (error) {
                 console.log(error);
                 if (contrail.checkIfFunction(callbackObj.error)) {
