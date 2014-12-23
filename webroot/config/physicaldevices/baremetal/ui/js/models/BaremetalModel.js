@@ -141,79 +141,79 @@ define([
                     }, function (response) {
                         //on success
                         console.log(response);
-                        if(response != null){
-                            var pinterfaces = jsonPath(response,"$..physical-interface");
-                            var intfUUID;
+                        if(response == null) {
+                            response = [];
+                        }
+                        var pinterfaces = jsonPath(response,"$..physical-interface");
+                        var intfUUID;
+                        if(pinterfaces) {
                             $.each(pinterfaces,function(i,pintf){
                                 if(pintf['fq_name'][2] == physicalInterface){
                                     intfUUID = pintf['uuid'];
                                 }
                             });
-                            if(intfUUID == null){
-                                //Physical interface not found so create it
-                                postObject = {};
-                                postObject["physical-interface"] = {};
-                                postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouter, physicalInterface];
-                                postObject["physical-interface"]["parent_type"] = "physical-router";
-                                postObject["physical-interface"]["name"] = physicalInterface;
-                                ajaxConfig.type = "POST";
-                                ajaxConfig.data = JSON.stringify(postObject);
-                                ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Physical';
-                                console.log(ajaxConfig);
-                                contrail.ajaxHandler(ajaxConfig, function () {
-                                }, function (response) {
-                                    var physicalInterfaces = jsonPath(response,"$..physical-interface");
-                                    var pintfUUID;
-                                    $.each(physicalInterfaces,function(i,pintf){
-                                        if(pintf['fq_name'][2] == physicalInterface){
-                                            pintfUUID = pintf['uuid'];
-                                        }
-                                    });
-                                    physicalIntfDeferredObj.resolve(pintfUUID);
-                                }, function (error) {
-                                    console.log(error);
-                                    if (contrail.checkIfFunction(callbackObj.error)) {
-                                        callbackObj.error("Error Creating the Physical Interface");
+                        }
+                        if(intfUUID == null){
+                            //Physical interface not found so create it
+                            postObject = {};
+                            postObject["physical-interface"] = {};
+                            postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouter, physicalInterface];
+                            postObject["physical-interface"]["parent_type"] = "physical-router";
+                            postObject["physical-interface"]["name"] = physicalInterface;
+                            ajaxConfig.type = "POST";
+                            ajaxConfig.data = JSON.stringify(postObject);
+                            ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Physical';
+                            console.log(ajaxConfig);
+                            contrail.ajaxHandler(ajaxConfig, function () {
+                            }, function (response) {
+                                var physicalInterfaces = jsonPath(response,"$..physical-interface");
+                                var pintfUUID;
+                                $.each(physicalInterfaces,function(i,pintf){
+                                    if(pintf['fq_name'][2] == physicalInterface){
+                                        pintfUUID = pintf['uuid'];
                                     }
                                 });
-                            } else {
-                                physicalIntfDeferredObj.resolve(intfUUID);
-                            }
-                            physicalIntfDeferredObj.done(function (intfUUID){
-                                postObject = {};
-                                postObject["logical-interface"] = {};
-                                postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouter, physicalInterface , name];
-                                postObject["logical-interface"]["parent_type"] = "physical-interface";
-                                postObject["logical-interface"]["parent_uuid"] = intfUUID;
-                                postObject["logical-interface"]["name"] = name;  
-                                postObject["logical-interface"]["logical_interface_vlan_tag"] = '0';//vlan always zero
-                                postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiDetails[0], vmiDetails[1], vmiDetails[2]]}];
-                                postObject["logical-interface"]["logical_interface_type"] = 'l2';
-                                ajaxConfig.type = "POST";
-                                ajaxConfig.data = JSON.stringify(postObject);
-                                ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical';
-                                console.log(ajaxConfig);
-                                contrail.ajaxHandler(ajaxConfig, function () {
-                                    if (contrail.checkIfFunction(callbackObj.init)) {
-                                        callbackObj.init();
-                                    }
-                                }, function (response) {
-                                    console.log(response);
-                                    if (contrail.checkIfFunction(callbackObj.success)) {
-                                        callbackObj.success(response);
-                                    }
-                                }, function (error) {
-                                    console.log(error);
-                                    if (contrail.checkIfFunction(callbackObj.error)) {
-                                        callbackObj.error(error);
-                                    }
-                                });
+                                physicalIntfDeferredObj.resolve(pintfUUID);
+                            }, function (error) {
+                                console.log(error);
+                                if (contrail.checkIfFunction(callbackObj.error)) {
+                                    callbackObj.error("Error Creating the Physical Interface");
+                                }
                             });
                         } else {
-                            if (contrail.checkIfFunction(callbackObj.error)) {
-                                callbackObj.error('Interface Not Found');
-                            }
+                            physicalIntfDeferredObj.resolve(intfUUID);
                         }
+                        physicalIntfDeferredObj.done(function (intfUUID){
+                            postObject = {};
+                            postObject["logical-interface"] = {};
+                            postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouter, physicalInterface , name];
+                            postObject["logical-interface"]["parent_type"] = "physical-interface";
+                            postObject["logical-interface"]["parent_uuid"] = intfUUID;
+                            postObject["logical-interface"]["name"] = name;  
+                            postObject["logical-interface"]["logical_interface_vlan_tag"] = '0';//vlan always zero
+                            postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiDetails[0], vmiDetails[1], vmiDetails[2]]}];
+                            postObject["logical-interface"]["logical_interface_type"] = 'l2';
+                            ajaxConfig.type = "POST";
+                            ajaxConfig.data = JSON.stringify(postObject);
+                            ajaxConfig.url = smwc.URL_PHYSICAL_INTERFACES + pRouterUUID + '/Logical';
+                            console.log(ajaxConfig);
+                            contrail.ajaxHandler(ajaxConfig, function () {
+                                if (contrail.checkIfFunction(callbackObj.init)) {
+                                    callbackObj.init();
+                                }
+                            }, function (response) {
+                                console.log(response);
+                                if (contrail.checkIfFunction(callbackObj.success)) {
+                                    callbackObj.success(response);
+                                }
+                            }, function (error) {
+                                console.log(error);
+                                if (contrail.checkIfFunction(callbackObj.error)) {
+                                    callbackObj.error(error);
+                                }
+                            });
+                        });
+
                     }, function (error) {
                         console.log(error);
                         if (contrail.checkIfFunction(callbackObj.error)) {
